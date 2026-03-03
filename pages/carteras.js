@@ -21,26 +21,19 @@ function Carteras() {
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 sticky top-0 z-10">
         <h2 className="text-xl font-bold tracking-tight">Mis Carteras</h2>
-        <div className="flex items-center gap-4">
-          <div className="relative">
+        <div className="flex items-center justify-end gap-3">
+          <div className="relative w-72">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
             <input
-              className="pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary w-64"
+              className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary"
               placeholder="Buscar carteras..."
               type="text"
             />
           </div>
-          <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg relative">
+          <button className="relative flex-shrink-0 p-2 text-slate-500 hover:bg-slate-100 rounded-lg">
             <span className="material-symbols-outlined">notifications</span>
             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
           </button>
-          <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden">
-            <img
-              className="w-full h-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPqiPuXkFo3de2Ksww4MM4161qqzqgoKaO4nwkRynti9sQt3YREeDIpbTkRcPlhH5SDdnMKIqkK_fYNN9b6XNDGuIoRwQ_2l8vQ_LKWqXIbKdANeGjT5Ct-Iu-NSHDfmEGkV_hrJ8_g5zOaNMglNR69QntQz96qIEfwYEt9LU16qm4GzP_pxzFiy9JL3aL8JIeKEw-N09UOR2II0ub5RabS06Ww2SsY4a-thKwss6-yCLKCpXzUVfSy3NkoECqQ1bh_AUUlVEa0eAf"
-              alt="User"
-            />
-          </div>
         </div>
       </header>
 
