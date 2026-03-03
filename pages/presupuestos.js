@@ -3,10 +3,10 @@ import withAuth from '../src/guards/withAuth'
 
 function Presupuestos() {
   const budgets = [
-    { id: 1, name: 'Alimentación', icon: 'restaurant', iconBg: 'bg-primary/10 text-primary', spent: 600, limit: 800, barColor: 'bg-primary' },
-    { id: 2, name: 'Transporte', icon: 'directions_car', iconBg: 'bg-orange-100 text-orange-600', spent: 120, limit: 300, barColor: 'bg-orange-500' },
-    { id: 3, name: 'Entretenimiento', icon: 'movie', iconBg: 'bg-purple-100 text-purple-600', spent: 245, limit: 250, barColor: 'bg-rose-500' },
-    { id: 4, name: 'Servicios del Hogar', icon: 'bolt', iconBg: 'bg-cyan-100 text-cyan-600', spent: 180, limit: 500, barColor: 'bg-cyan-500' },
+    { id: 1, name: 'Alimentación', icon: 'restaurant', iconBg: 'bg-primary bg-opacity-10 text-primary', spent: 600, limit: 800, barColor: 'bg-primary' },
+    { id: 2, name: 'Transporte', icon: 'directions_car', iconBg: 'bg-warning bg-opacity-25 text-warning-emphasis', spent: 120, limit: 300, barColor: 'bg-warning' },
+    { id: 3, name: 'Entretenimiento', icon: 'movie', iconBg: 'bg-danger bg-opacity-10 text-danger', spent: 245, limit: 250, barColor: 'bg-danger' },
+    { id: 4, name: 'Servicios del Hogar', icon: 'bolt', iconBg: 'bg-info bg-opacity-10 text-info', spent: 180, limit: 500, barColor: 'bg-info' },
   ]
 
   const totalBudgeted = 3500
@@ -15,75 +15,85 @@ function Presupuestos() {
 
   return (
     <Layout title="Presupuestos - Mi Finanzas">
-      <div className="max-w-5xl mx-auto p-8 overflow-auto flex-1">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="container-xl py-4 py-lg-5 overflow-auto">
+        <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
           <div>
-            <h2 className="text-3xl font-black tracking-tight">Presupuestos</h2>
-            <p className="text-slate-500 mt-1">Gestiona tus límites de gasto mensuales y ahorra más.</p>
+            <h2 className="h2 fw-bold mb-1">Presupuestos</h2>
+            <p className="text-secondary mb-0">Gestiona tus límites de gasto mensuales y ahorra más.</p>
           </div>
-          <button className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm">
-            <span className="material-symbols-outlined text-[20px]">add_circle</span>
+          <button className="btn btn-primary d-inline-flex align-items-center gap-2" type="button">
+            <span className="material-symbols-outlined fs-6">add_circle</span>
             Crear Presupuesto
           </button>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">Total Presupuestado</p>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-bold">${totalBudgeted.toLocaleString()}.00</span>
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">0.0%</span>
+        <div className="row g-3 mb-4">
+          <div className="col-12 col-md-4">
+            <div className="card h-100 border-0 shadow-sm">
+              <div className="card-body">
+                <p className="small text-secondary mb-1">Total Presupuestado</p>
+                <div className="d-flex align-items-center gap-2">
+                  <span className="h4 fw-bold mb-0">${totalBudgeted.toLocaleString()}.00</span>
+                  <span className="badge text-bg-success">0.0%</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">Total Gastado</p>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-bold">${totalSpent.toLocaleString()}.00</span>
-              <span className="text-xs font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">-12.5%</span>
+          <div className="col-12 col-md-4">
+            <div className="card h-100 border-0 shadow-sm">
+              <div className="card-body">
+                <p className="small text-secondary mb-1">Total Gastado</p>
+                <div className="d-flex align-items-center gap-2">
+                  <span className="h4 fw-bold mb-0">${totalSpent.toLocaleString()}.00</span>
+                  <span className="badge text-bg-danger">-12.5%</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">Ahorro Potencial</p>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-bold">${potentialSavings.toLocaleString()}.00</span>
-              <span className="text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">+5.2%</span>
+          <div className="col-12 col-md-4">
+            <div className="card h-100 border-0 shadow-sm">
+              <div className="card-body">
+                <p className="small text-secondary mb-1">Ahorro Potencial</p>
+                <div className="d-flex align-items-center gap-2">
+                  <span className="h4 fw-bold mb-0">${potentialSavings.toLocaleString()}.00</span>
+                  <span className="badge text-bg-primary">+5.2%</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Detailed Categories */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-primary">analytics</span>
-            Detalle por categoría
-          </h3>
+        <div className="d-flex align-items-center gap-2 mb-3">
+          <span className="material-symbols-outlined text-primary">analytics</span>
+          <h3 className="h5 fw-bold mb-0">Detalle por categoría</h3>
+        </div>
 
+        <div className="d-grid gap-3">
           {budgets.map((budget) => {
             const percent = Math.round((budget.spent / budget.limit) * 100)
-            const percentColor = percent >= 90 ? 'text-rose-500 font-bold' : percent >= 70 ? 'text-primary' : `text-${budget.barColor.replace('bg-', '')}`
+            const percentClass = percent >= 90 ? 'text-danger fw-bold' : percent >= 70 ? 'text-primary fw-semibold' : 'text-secondary'
+
             return (
-              <div
-                key={budget.id}
-                className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center gap-6"
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <div className={`w-12 h-12 rounded-xl ${budget.iconBg} flex items-center justify-center shrink-0`}>
-                    <span className="material-symbols-outlined text-[28px]">{budget.icon}</span>
+              <div key={budget.id} className="card border-0 shadow-sm">
+                <div className="card-body d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                  <div className="d-flex align-items-center gap-3 flex-grow-1">
+                    <div className={`rounded p-2 d-inline-flex align-items-center justify-content-center ${budget.iconBg}`}>
+                      <span className="material-symbols-outlined">{budget.icon}</span>
+                    </div>
+                    <div>
+                      <h4 className="h6 fw-bold mb-1">{budget.name}</h4>
+                      <p className="small text-uppercase text-secondary mb-0">Mensual</p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="font-bold text-base truncate">{budget.name}</h4>
-                    <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Mensual</p>
-                  </div>
-                </div>
-                <div className="flex flex-col sm:items-end gap-2 flex-1">
-                  <div className="flex justify-between w-full text-sm font-medium mb-1">
-                    <span className="text-slate-600">${budget.spent.toFixed(2)} de ${budget.limit.toFixed(2)}</span>
-                    <span className={percent >= 90 ? 'text-rose-500 font-bold' : 'text-primary'}>{percent}%</span>
-                  </div>
-                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div className={`h-full ${budget.barColor} rounded-full transition-all`} style={{ width: `${percent}%` }}></div>
+
+                  <div className="flex-grow-1 w-100">
+                    <div className="d-flex justify-content-between small mb-2">
+                      <span className="text-secondary">${budget.spent.toFixed(2)} de ${budget.limit.toFixed(2)}</span>
+                      <span className={percentClass}>{percent}%</span>
+                    </div>
+                    <div className="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={percent}>
+                      <div className={`progress-bar ${budget.barColor}`} style={{ width: `${percent}%` }} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -91,14 +101,19 @@ function Presupuestos() {
           })}
         </div>
 
-        {/* Empty State Suggestion */}
-        <div className="mt-12 p-8 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-            <span className="material-symbols-outlined text-slate-400 text-3xl">lightbulb</span>
+        <div className="card border-dashed mt-4">
+          <div className="card-body text-center p-4">
+            <div className="empty-state-icon rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3">
+              <span className="material-symbols-outlined text-secondary">lightbulb</span>
+            </div>
+            <h4 className="h6 fw-bold">¿Necesitas ayuda con tus ahorros?</h4>
+            <p className="text-secondary small mx-auto mb-3" style={{ maxWidth: '420px' }}>
+              Prueba nuestra herramienta de auto-presupuesto basada en tus gastos del mes anterior.
+            </p>
+            <button className="btn btn-link text-decoration-none fw-semibold" type="button">
+              Sugerir presupuesto inteligente
+            </button>
           </div>
-          <h4 className="font-bold text-slate-900">¿Necesitas ayuda con tus ahorros?</h4>
-          <p className="text-slate-500 text-sm max-w-sm mt-2">Prueba nuestra herramienta de auto-presupuesto basada en tus gastos del mes anterior.</p>
-          <button className="mt-4 text-primary font-bold text-sm hover:underline">Sugerir presupuesto inteligente</button>
         </div>
       </div>
     </Layout>

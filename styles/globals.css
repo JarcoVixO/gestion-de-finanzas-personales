@@ -18,7 +18,92 @@ body {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+.app-shell {
+  background-color: #f6f6f8;
+}
+
+.sidebar-brand-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.sidebar-link {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
 .active-nav {
-  background-color: rgba(17, 82, 212, 0.1);
-  color: #1152d4;
+  background-color: rgba(13, 110, 253, 0.12);
+  color: #0d6efd;
+}
+
+.active-nav:hover {
+  background-color: rgba(13, 110, 253, 0.18);
+  color: #0d6efd;
+}
+
+.user-avatar {
+  width: 2rem;
+  height: 2rem;
+  object-fit: cover;
+}
+
+.user-email {
+  font-size: 0.7rem;
+}
+
+.transaction-icon-box {
+  width: 2rem;
+  height: 2rem;
+}
+
+.wallet-search {
+  min-width: 240px;
+  max-width: 320px;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  background-color: #dc3545;
+}
+
+.wallet-hero-gradient {
+  width: 35%;
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.2), transparent);
+  pointer-events: none;
+}
+
+.wallet-hero-icon {
+  position: absolute;
+  right: -1.5rem;
+  bottom: -2.5rem;
+  font-size: 9rem;
+  opacity: 0.14;
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+.empty-state-icon {
+  width: 4rem;
+  height: 4rem;
+}
+
+@media (max-width: 575.98px) {
+  .wallet-search {
+    min-width: 0;
+  }
 }
