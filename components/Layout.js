@@ -32,7 +32,7 @@ export default function Layout({ children, title = 'Mi Finanzas' }) {
 
       <div className="container-fluid px-0 app-shell">
         <div className="row g-0 min-vh-100">
-          <aside className="col-12 col-md-3 col-lg-2 border-end bg-light d-flex flex-column">
+          <aside className="col-12 col-md-3 col-lg-2 border-end bg-light d-flex flex-column app-sidebar">
             <div className="p-4 d-flex align-items-center gap-3 border-bottom">
               <div className="sidebar-brand-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center">
                 <span className="material-symbols-outlined">payments</span>

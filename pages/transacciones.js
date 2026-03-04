@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import Layout from '../components/Layout'
 import { useStore } from '../store/useStore'
@@ -5,33 +6,58 @@ import withAuth from '../src/guards/withAuth'
 
 function Transacciones() {
   const { transactions } = useStore()
+  const [activeTab, setActiveTab] = useState('all')
 
-  const sampleTransactions = [
-    { id: 1, date: '24 Oct 2023', description: 'Suscripción Netflix', icon: 'movie', category: 'Entretenimiento', categoryColor: 'purple', account: 'Visa Débito (...4421)', amount: -15.99 },
-    { id: 2, date: '23 Oct 2023', description: 'Depósito Nómina Acme Inc.', icon: 'work', category: 'Salario', categoryColor: 'green', account: 'Cuenta Corriente', amount: 2500.00 },
-    { id: 3, date: '22 Oct 2023', description: 'Supermercado Central', icon: 'shopping_cart', category: 'Alimentación', categoryColor: 'amber', account: 'Efectivo', amount: -85.40 },
-    { id: 4, date: '21 Oct 2023', description: 'Pago Gimnasio Power', icon: 'fitness_center', category: 'Salud', categoryColor: 'blue', account: 'Visa Débito (...4421)', amount: -45.00 },
-    { id: 5, date: '20 Oct 2023', description: 'Transferencia Bizum Recibida', icon: 'swap_horiz', category: 'Otros', categoryColor: 'slate', account: 'Cuenta Corriente', amount: 20.00 },
-    { id: 6, date: '19 Oct 2023', description: 'Cena Restaurante El Olivo', icon: 'restaurant', category: 'Restauración', categoryColor: 'orange', account: 'Efectivo', amount: -32.50 },
-  ]
-
-  const getCategoryClasses = (color) => {
-    const colors = {
-      purple: 'text-bg-primary',
-      green: 'text-bg-success',
-      amber: 'text-bg-warning text-dark',
-      blue: 'text-bg-info text-dark',
-      slate: 'text-bg-secondary',
-      orange: 'text-bg-warning text-dark',
+  const filteredTransactions = useMemo(() => {
+    if (activeTab === 'income') {
+      return transactions.filter((tx) => tx.amount >= 0)
     }
-    return colors[color] || colors.slate
+
+    if (activeTab === 'expense') {
+      return transactions.filter((tx) => tx.amount < 0)
+    }
+
+    return transactions
+  }, [activeTab, transactions])
+
+  const getCategoryMeta = (tx) => {
+    const isIncome = tx.amount >= 0
+    const normalizedDesc = (tx.description || '').toLowerCase()
+
+    if (isIncome && normalizedDesc.includes('sueldo')) {
+      return { label: 'Salario', badgeClass: 'text-bg-success', icon: 'work' }
+    }
+
+    if (isIncome) {
+      return { label: 'Ingreso', badgeClass: 'text-bg-success', icon: 'trending_up' }
+    }
+
+    return { label: 'Gasto', badgeClass: 'text-bg-warning text-dark', icon: 'receipt_long' }
+  }
+
+  const formatDate = (value) => {
+    if (!value) {
+      return 'Sin fecha'
+    }
+
+    const date = new Date(`${value}T00:00:00`)
+
+    if (Number.isNaN(date.getTime())) {
+      return value
+    }
+
+    return date.toLocaleDateString('es-SV', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    })
   }
 
   return (
     <Layout title="Transacciones - Mi Finanzas">
-      <div className="p-4 p-lg-5">
-        <header className="mb-4">
-          <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+      <div className="container-xl py-4 py-lg-5">
+        <header className="page-header-panel">
+          <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div>
               <h2 className="h2 fw-bold mb-1">Transacciones</h2>
               <p className="text-secondary mb-0">Gestiona y analiza tus movimientos financieros</p>
@@ -50,17 +76,37 @@ function Transacciones() {
               </Link>
             </div>
           </div>
+        </header>
 
-          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 border-bottom pb-2">
+        <section className="card border-0 shadow-sm mb-4">
+          <div className="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
             <ul className="nav nav-tabs border-0">
               <li className="nav-item">
-                <button className="nav-link active" type="button">Todos</button>
+                <button
+                  className={`nav-link ${activeTab === 'all' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setActiveTab('all')}
+                >
+                  Todos
+                </button>
               </li>
               <li className="nav-item">
-                <button className="nav-link" type="button">Ingresos</button>
+                <button
+                  className={`nav-link ${activeTab === 'income' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setActiveTab('income')}
+                >
+                  Ingresos
+                </button>
               </li>
               <li className="nav-item">
-                <button className="nav-link" type="button">Gastos</button>
+                <button
+                  className={`nav-link ${activeTab === 'expense' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setActiveTab('expense')}
+                >
+                  Gastos
+                </button>
               </li>
             </ul>
             <div>
@@ -73,7 +119,7 @@ function Transacciones() {
               </select>
             </div>
           </div>
-        </header>
+        </section>
 
         <div className="card border-0 shadow-sm">
           <div className="table-responsive">
@@ -88,34 +134,47 @@ function Transacciones() {
                 </tr>
               </thead>
               <tbody>
-                {sampleTransactions.map((tx) => (
-                  <tr key={tx.id}>
-                    <td className="small text-secondary">{tx.date}</td>
-                    <td>
-                      <div className="d-flex align-items-center gap-2">
-                        <div className="transaction-icon-box rounded bg-light d-flex align-items-center justify-content-center text-secondary">
-                          <span className="material-symbols-outlined fs-6">{tx.icon}</span>
+                {filteredTransactions.map((tx) => {
+                  const meta = getCategoryMeta(tx)
+
+                  return (
+                    <tr key={tx.id}>
+                      <td className="small text-secondary">{formatDate(tx.date)}</td>
+                      <td>
+                        <div className="d-flex align-items-center gap-2">
+                          <div className="transaction-icon-box rounded bg-light d-flex align-items-center justify-content-center text-secondary">
+                            <span className="material-symbols-outlined fs-6">{meta.icon}</span>
+                          </div>
+                          <span className="fw-semibold">{tx.description || 'Sin descripción'}</span>
                         </div>
-                        <span className="fw-semibold">{tx.description}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`badge rounded-pill ${getCategoryClasses(tx.categoryColor)}`}>
-                        {tx.category}
-                      </span>
-                    </td>
-                    <td className="small text-secondary">{tx.account}</td>
-                    <td className={`fw-bold text-end ${tx.amount >= 0 ? 'text-success' : 'text-danger'}`}>
-                      {tx.amount >= 0 ? '+' : ''}{tx.amount < 0 ? '-' : ''}${Math.abs(tx.amount).toFixed(2)}
+                      </td>
+                      <td>
+                        <span className={`badge rounded-pill ${meta.badgeClass}`}>
+                          {meta.label}
+                        </span>
+                      </td>
+                      <td className="small text-secondary">{tx.accountName || 'Sin cuenta'}</td>
+                      <td className={`fw-bold text-end ${tx.amount >= 0 ? 'text-success' : 'text-danger'}`}>
+                        {tx.amount >= 0 ? '+' : ''}{tx.amount < 0 ? '-' : ''}${Math.abs(tx.amount).toFixed(2)}
+                      </td>
+                    </tr>
+                  )
+                })}
+                {filteredTransactions.length === 0 && (
+                  <tr>
+                    <td className="text-center text-secondary py-4" colSpan={5}>
+                      No hay transacciones para mostrar.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
 
           <div className="card-footer bg-light d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
-            <p className="small text-secondary mb-0">Mostrando 1-6 de 128 transacciones</p>
+            <p className="small text-secondary mb-0">
+              Mostrando {filteredTransactions.length} de {transactions.length} transacciones
+            </p>
             <ul className="pagination pagination-sm mb-0">
               <li className="page-item disabled">
                 <button className="page-link" type="button">Anterior</button>

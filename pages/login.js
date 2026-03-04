@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { getSession, login } from '../src/services/authService'
+import { getSession, login, resetPassword } from '../src/services/authService'
 
 export default function Login() {
   const router = useRouter()
@@ -9,8 +9,15 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isCheckingSession, setIsCheckingSession] = useState(true)
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [resetError, setResetError] = useState('')
+  const [isResetLoading, setIsResetLoading] = useState(false)
 
   useEffect(() => {
     const session = getSession()
@@ -26,6 +33,7 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
+    setSuccess('')
 
     if (!email.trim() || !password.trim()) {
       setError('Correo y contraseña son obligatorios')
@@ -45,6 +53,61 @@ export default function Login() {
     }
 
     router.push('/transacciones')
+  }
+
+  const openResetModal = () => {
+    setResetEmail(email.trim())
+    setNewPassword('')
+    setConfirmPassword('')
+    setResetError('')
+    setIsResetModalOpen(true)
+  }
+
+  const closeResetModal = () => {
+    setIsResetModalOpen(false)
+    setResetEmail('')
+    setNewPassword('')
+    setConfirmPassword('')
+    setResetError('')
+  }
+
+  const handleResetPassword = async (event) => {
+    event.preventDefault()
+    setResetError('')
+    setSuccess('')
+
+    if (!resetEmail.trim()) {
+      setResetError('Debes ingresar un correo electrónico.')
+      return
+    }
+
+    if (newPassword.trim().length < 8) {
+      setResetError('La nueva contraseña debe tener al menos 8 caracteres.')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setResetError('Las contraseñas no coinciden.')
+      return
+    }
+
+    setIsResetLoading(true)
+    await new Promise((resolve) => setTimeout(resolve, 350))
+
+    const result = resetPassword(resetEmail, newPassword)
+
+    if (!result.ok) {
+      setResetError(result.message)
+      setIsResetLoading(false)
+      return
+    }
+
+    setEmail(resetEmail.trim())
+    setPassword('')
+    setShowPassword(false)
+    setSuccess('Contraseña restablecida. Ya puedes iniciar sesión con tu nueva contraseña.')
+    setIsResetLoading(false)
+    closeResetModal()
   }
 
   if (isCheckingSession) {
@@ -170,6 +233,12 @@ export default function Login() {
                     </div>
                   )}
 
+                  {success && (
+                    <div className="alert alert-success py-2 mb-0" role="alert">
+                      {success}
+                    </div>
+                  )}
+
                   <div className="d-flex align-items-center justify-content-between">
                     <div className="form-check">
                       <input className="form-check-input" type="checkbox" id="recordarme" />
@@ -177,9 +246,9 @@ export default function Login() {
                         Recordarme
                       </label>
                     </div>
-                    <a className="small text-decoration-none" href="#">
+                    <button className="btn btn-link text-decoration-none small p-0" type="button" onClick={openResetModal}>
                       ¿Olvidaste tu contraseña?
-                    </a>
+                    </button>
                   </div>
 
                   <button
@@ -196,6 +265,84 @@ export default function Login() {
           </div>
         </div>
       </div>
+
+      {isResetModalOpen && (
+        <>
+          <div
+            className="modal d-block wallet-modal"
+            tabIndex="-1"
+            role="dialog"
+            style={{ zIndex: 1085 }}
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                closeResetModal()
+              }
+            }}
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Restablecer contraseña</h5>
+                  <button type="button" className="btn-close" aria-label="Cerrar" onClick={closeResetModal} />
+                </div>
+                <form onSubmit={handleResetPassword}>
+                  <div className="modal-body d-grid gap-3">
+                    <div>
+                      <label className="form-label fw-semibold">Correo electrónico</label>
+                      <input
+                        className="form-control"
+                        placeholder="correo@ejemplo.com"
+                        type="email"
+                        value={resetEmail}
+                        onChange={(event) => setResetEmail(event.target.value)}
+                        autoFocus
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="form-label fw-semibold">Nueva contraseña</label>
+                      <input
+                        className="form-control"
+                        placeholder="Mínimo 8 caracteres"
+                        type="password"
+                        value={newPassword}
+                        onChange={(event) => setNewPassword(event.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="form-label fw-semibold">Confirmar contraseña</label>
+                      <input
+                        className="form-control"
+                        placeholder="Repite la nueva contraseña"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                        required
+                      />
+                    </div>
+
+                    {resetError && (
+                      <div className="alert alert-danger py-2 mb-0" role="alert">
+                        {resetError}
+                      </div>
+                    )}
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn btn-outline-secondary" onClick={closeResetModal}>
+                      Cancelar
+                    </button>
+                    <button type="submit" className="btn btn-primary" disabled={isResetLoading}>
+                      {isResetLoading ? 'Guardando...' : 'Guardar nueva contraseña'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop fade show" style={{ zIndex: 1080 }}></div>
+        </>
+      )}
     </>
   )
 }
