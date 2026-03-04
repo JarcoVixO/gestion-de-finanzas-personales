@@ -19,8 +19,12 @@ const getInitialState = () => ({
     { id: 'acc2', name: 'Cuenta Banco', balance: 3400.5, type: 'Banco', goal: 5000 }
   ],
   transactions: [
-    { id: 't1', date: '2026-03-01', description: 'Compra supermercado', amount: -45.6, accountId: 'acc1', accountName: 'Caja' },
-    { id: 't2', date: '2026-03-02', description: 'Sueldo', amount: 1500.0, accountId: 'acc2', accountName: 'Cuenta Banco' }
+    { id: 1, date: '24 Oct 2023', description: 'Suscripción Netflix', icon: 'movie', category: 'Entretenimiento', categoryColor: 'purple', account: 'Visa Débito (...4421)', amount: -15.99 },
+    { id: 2, date: '23 Oct 2023', description: 'Depósito Nómina Acme Inc.', icon: 'work', category: 'Salario', categoryColor: 'green', account: 'Cuenta Corriente', amount: 2500.00 },
+    { id: 3, date: '22 Oct 2023', description: 'Supermercado Central', icon: 'shopping_cart', category: 'Alimentación', categoryColor: 'amber', account: 'Efectivo', amount: -85.40 },
+    { id: 4, date: '21 Oct 2023', description: 'Pago Gimnasio Power', icon: 'fitness_center', category: 'Salud', categoryColor: 'blue', account: 'Visa Débito (...4421)', amount: -45.00 },
+    { id: 5, date: '20 Oct 2023', description: 'Transferencia Bizum Recibida', icon: 'swap_horiz', category: 'Otros', categoryColor: 'slate', account: 'Cuenta Corriente', amount: 20.00 },
+    { id: 6, date: '19 Oct 2023', description: 'Cena Restaurante El Olivo', icon: 'restaurant', category: 'Restauración', categoryColor: 'orange', account: 'Efectivo', amount: -32.50 },
   ],
   budgets: [
     { id: 'b1', name: 'Alimentación', limit: 800, spent: 600, category: 'Hogar', priority: 'Alta', dueDate: '' },

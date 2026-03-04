@@ -128,6 +128,71 @@ function Carteras() {
     setOpenMenuId((currentId) => (currentId === walletId ? null : walletId))
   }
 
+  const handleDeleteClick = (wallet) => {
+    setOpenMenuId(null)
+    setWalletToDelete(wallet)
+  }
+
+  const handleEditClick = (wallet) => {
+    setOpenMenuId(null)
+    setEditingWallet(wallet)
+    setWalletName(wallet.name)
+    setInitialAmount(wallet.balance.toString())
+    setSelectedIcon(wallet.icon)
+  }
+
+  const cancelEdit = () => {
+    setEditingWallet(null)
+    setWalletName('')
+    setInitialAmount('')
+    setSelectedIcon('savings')
+  }
+
+  const confirmEdit = (e) => {
+    e.preventDefault()
+    if (editingWallet) {
+      const iconOption = iconOptions.find(i => i.icon === selectedIcon)
+      setWalletUpdates({
+        ...walletUpdates,
+        [editingWallet.id]: {
+          name: walletName,
+          balance: parseFloat(initialAmount) || 0,
+          icon: selectedIcon,
+          iconBg: iconOption?.bg || 'bg-blue-100 text-blue-600'
+        }
+      })
+      cancelEdit()
+    }
+  }
+
+  const handleCreateWallet = (e) => {
+    e.preventDefault()
+    if (!walletName.trim()) return
+
+    const iconOption = iconOptions.find(i => i.icon === selectedIcon)
+    const newWallet = {
+      id: nextId,
+      name: walletName,
+      balance: parseFloat(initialAmount) || 0,
+      goal: (parseFloat(initialAmount) || 0) * 1.5 || 1000,
+      icon: selectedIcon,
+      iconBg: iconOption?.bg || 'bg-blue-100 text-blue-600'
+    }
+
+    setNewWallets([...newWallets, newWallet])
+    setNextId(nextId + 1)
+    setWalletName('')
+    setInitialAmount('')
+    setSelectedIcon('savings')
+  }
+
+  const confirmDelete = () => {
+    if (walletToDelete) {
+      setHiddenWallets([...hiddenWallets, walletToDelete.id])
+      setWalletToDelete(null)
+    }
+  }
+
   return (
     <Layout title="Carteras - Mi Finanzas">
       <div className="container-xl py-4 py-lg-5">
