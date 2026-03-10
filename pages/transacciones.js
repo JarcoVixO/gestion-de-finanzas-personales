@@ -5,8 +5,11 @@ import { useStore } from '../store/useStore'
 import withAuth from '../src/guards/withAuth'
 
 function Transacciones() {
-  const { transactions } = useStore()
+  const { transactions, deleteTransaction } = useStore()
   const [activeTab, setActiveTab] = useState('all')
+  const [openMenuId, setOpenMenuId] = useState(null)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [selectedTransaction, setSelectedTransaction] = useState(null)
 
   const filteredTransactions = useMemo(() => {
     if (activeTab === 'income') {
@@ -51,6 +54,30 @@ function Transacciones() {
       month: 'short',
       year: 'numeric'
     })
+  }
+
+  const openDeleteModal = (transaction) => {
+    setSelectedTransaction(transaction)
+    setIsDeleteModalOpen(true)
+    setOpenMenuId(null)
+  }
+
+  const closeDeleteModal = () => {
+    setSelectedTransaction(null)
+    setIsDeleteModalOpen(false)
+  }
+
+  const confirmDeleteTransaction = () => {
+    if (!selectedTransaction) {
+      return
+    }
+
+    deleteTransaction(selectedTransaction.id)
+    closeDeleteModal()
+  }
+
+  const toggleTransactionMenu = (transactionId) => {
+    setOpenMenuId((current) => (current === transactionId ? null : transactionId))
   }
 
   return (
@@ -122,7 +149,7 @@ function Transacciones() {
         </section>
 
         <div className="card border-0 shadow-sm">
-          <div className="table-responsive">
+          <div className="table-responsive transactions-table-responsive">
             <table className="table table-hover align-middle mb-0">
               <thead className="table-light">
                 <tr>
@@ -131,6 +158,7 @@ function Transacciones() {
                   <th className="text-uppercase small text-secondary fw-semibold">Categoría</th>
                   <th className="text-uppercase small text-secondary fw-semibold">Cuenta</th>
                   <th className="text-uppercase small text-secondary fw-semibold text-end">Monto</th>
+                  <th className="text-uppercase small text-secondary fw-semibold text-end tx-actions-col">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -157,12 +185,29 @@ function Transacciones() {
                       <td className={`fw-bold text-end ${tx.amount >= 0 ? 'text-success' : 'text-danger'}`}>
                         {tx.amount >= 0 ? '+' : ''}{tx.amount < 0 ? '-' : ''}${Math.abs(tx.amount).toFixed(2)}
                       </td>
+                      <td className="tx-actions-col">
+                        <div className="transaction-actions-wrapper">
+                          <button
+                            className="btn btn-link text-secondary p-0 d-inline-flex align-items-center justify-content-center tx-actions-trigger"
+                            type="button"
+                            onClick={() => toggleTransactionMenu(tx.id)}
+                            aria-expanded={openMenuId === tx.id}
+                          >
+                            <span className="material-symbols-outlined">more_vert</span>
+                          </button>
+                          <div className={`dropdown-menu transaction-actions-menu ${openMenuId === tx.id ? 'show' : ''}`}>
+                            <button className="dropdown-item text-danger" type="button" onClick={() => openDeleteModal(tx)}>
+                              Eliminar
+                            </button>
+                          </div>
+                        </div>
+                      </td>
                     </tr>
                   )
                 })}
                 {filteredTransactions.length === 0 && (
                   <tr>
-                    <td className="text-center text-secondary py-4" colSpan={5}>
+                    <td className="text-center text-secondary py-4" colSpan={6}>
                       No hay transacciones para mostrar.
                     </td>
                   </tr>
@@ -186,6 +231,51 @@ function Transacciones() {
           </div>
         </div>
       </div>
+
+      {isDeleteModalOpen && (
+        <>
+          <div
+            className="modal d-block wallet-modal"
+            tabIndex="-1"
+            role="dialog"
+            style={{ zIndex: 1085 }}
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                closeDeleteModal()
+              }
+            }}
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Eliminar transacción</h5>
+                  <button type="button" className="btn-close" aria-label="Cerrar" onClick={closeDeleteModal} />
+                </div>
+                <div className="modal-body">
+                  <p className="mb-8 text-secondary">
+                    Esta acción eliminará la transacción del historial y no se puede deshacer.
+                  </p>
+                  <div className="rounded border bg-light p-3">
+                    <p className="mb-1 fw-semibold">{selectedTransaction?.description || 'Sin descripción'}</p>
+                    <p className="mb-0 small text-secondary">
+                      {formatDate(selectedTransaction?.date)} • {selectedTransaction?.accountName || 'Sin cuenta'} • {selectedTransaction?.amount >= 0 ? '+' : '-'}${Math.abs(selectedTransaction?.amount || 0).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-outline-secondary" onClick={closeDeleteModal}>
+                    Cancelar
+                  </button>
+                  <button type="button" className="btn btn-danger" onClick={confirmDeleteTransaction}>
+                    Eliminar transacción
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-backdrop fade show" style={{ zIndex: 1080 }} />
+        </>
+      )}
     </Layout>
   )
 }

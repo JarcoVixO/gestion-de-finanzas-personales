@@ -20,9 +20,6 @@ function Presupuestos() {
   const [expenseAccountId, setExpenseAccountId] = useState('')
 
   const [createTitle, setCreateTitle] = useState('')
-  const [createDescription, setCreateDescription] = useState('')
-  const [createCategory, setCreateCategory] = useState('General')
-  const [createPriority, setCreatePriority] = useState('Media')
   const [createDueDate, setCreateDueDate] = useState('')
   const [createLimit, setCreateLimit] = useState('')
 
@@ -77,9 +74,6 @@ function Presupuestos() {
 
   const resetCreateForm = () => {
     setCreateTitle('')
-    setCreateDescription('')
-    setCreateCategory('General')
-    setCreatePriority('Media')
     setCreateDueDate('')
     setCreateLimit('')
   }
@@ -108,9 +102,6 @@ function Presupuestos() {
       name: trimmedTitle,
       limit: parsedLimit,
       spent: 0,
-      description: createDescription,
-      category: createCategory,
-      priority: createPriority,
       dueDate: createDueDate
     })
 
@@ -144,14 +135,6 @@ function Presupuestos() {
 
     updateBudget({ id: editingBudgetId, name: trimmedName, limit: parsedLimit })
     closeEditModal()
-  }
-
-  const openExpenseModal = (budget) => {
-    setSelectedBudget(budget)
-    setExpenseAmount('')
-    setExpenseAccountId(accounts[0]?.id || '')
-    setIsExpenseModalOpen(true)
-    setOpenMenuId(null)
   }
 
   const closeExpenseModal = () => {
@@ -302,9 +285,6 @@ function Presupuestos() {
                     </div>
 
                     <div className="d-flex align-items-center gap-2 ms-lg-auto">
-                      <button className="btn btn-outline-primary btn-sm" type="button" onClick={() => openExpenseModal(budget)}>
-                        Registrar gasto
-                      </button>
                       <div className="position-relative">
                         <button
                           className="btn btn-link text-secondary p-0"
@@ -371,47 +351,8 @@ function Presupuestos() {
                       />
                     </div>
 
-                    <div>
-                      <label className="form-label fw-semibold">Descripción</label>
-                      <textarea
-                        className="form-control"
-                        rows={3}
-                        placeholder="Descripción detallada del presupuesto..."
-                        value={createDescription}
-                        onChange={(event) => setCreateDescription(event.target.value)}
-                      />
-                    </div>
-
                     <div className="row g-3">
-                      <div className="col-12 col-md-4">
-                        <label className="form-label fw-semibold">Categoría *</label>
-                        <select
-                          className="form-select"
-                          value={createCategory}
-                          onChange={(event) => setCreateCategory(event.target.value)}
-                          required
-                        >
-                          <option value="General">General</option>
-                          <option value="Hogar">Hogar</option>
-                          <option value="Movilidad">Movilidad</option>
-                          <option value="Ocio">Ocio</option>
-                          <option value="Salud">Salud</option>
-                        </select>
-                      </div>
-                      <div className="col-12 col-md-4">
-                        <label className="form-label fw-semibold">Prioridad *</label>
-                        <select
-                          className="form-select"
-                          value={createPriority}
-                          onChange={(event) => setCreatePriority(event.target.value)}
-                          required
-                        >
-                          <option value="Alta">Alta</option>
-                          <option value="Media">Media</option>
-                          <option value="Baja">Baja</option>
-                        </select>
-                      </div>
-                      <div className="col-12 col-md-4">
+                      <div className="col-12 col-md-6">
                         <label className="form-label fw-semibold">Fecha de vencimiento</label>
                         <div className="input-group">
                           <input
@@ -425,7 +366,7 @@ function Presupuestos() {
                           </span>
                         </div>
                       </div>
-                      <div className="col-12 col-md-4">
+                      <div className="col-12 col-md-6">
                         <label className="form-label fw-semibold">Límite mensual ($) *</label>
                         <div className="input-group">
                           <span className="input-group-text">$</span>

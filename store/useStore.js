@@ -209,7 +209,11 @@ export const useStore = create(
         }
 
         return { transactions: [newTx, ...state.transactions] }
-      })
+      }),
+
+      deleteTransaction: (id) => set((state) => ({
+        transactions: state.transactions.filter((transaction) => transaction.id !== id)
+      }))
     }),
     {
       name: STORE_KEY,

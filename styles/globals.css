@@ -65,6 +65,37 @@ body {
   height: 2rem;
 }
 
+.tx-actions-col {
+  width: 5.5rem;
+  min-width: 5.5rem;
+  overflow: visible;
+}
+
+.tx-actions-trigger {
+  width: 2rem;
+  height: 2rem;
+}
+
+.transaction-actions-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.transaction-actions-menu {
+  min-width: 9rem;
+  top: 50%;
+  left: calc(100% + 0.35rem);
+  right: auto;
+  margin-top: 0;
+  transform: translateY(-50%);
+  z-index: 1100;
+}
+
+.transactions-table-responsive {
+  overflow: visible !important;
+}
+
 .page-header-panel {
   padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;
