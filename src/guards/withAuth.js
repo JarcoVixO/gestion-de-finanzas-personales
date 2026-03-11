@@ -1,10 +1,13 @@
+"use client"
+
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+import { usePathname, useRouter } from 'next/navigation'
 import { getSession } from '../services/authService'
 
 export default function withAuth(WrappedComponent) {
   function ProtectedPage(props) {
     const router = useRouter()
+    const pathname = usePathname()
     const [isChecking, setIsChecking] = useState(true)
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
@@ -18,7 +21,7 @@ export default function withAuth(WrappedComponent) {
 
       setIsAuthenticated(true)
       setIsChecking(false)
-    }, [router])
+    }, [pathname, router])
 
     if (isChecking || !isAuthenticated) {
       return (

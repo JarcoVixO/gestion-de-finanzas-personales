@@ -1,7 +1,9 @@
+"use client"
+
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import Layout from '../components/Layout'
-import { useStore } from '../store/useStore'
+import { useRouter } from 'next/navigation'
+import Layout from '../../components/Layout'
+import { useStore } from '../../store/useStore'
 
 export default function NuevaTransaccion() {
   const { accounts, budgets, addTransaction } = useStore()

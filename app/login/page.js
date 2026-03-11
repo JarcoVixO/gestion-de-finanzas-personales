@@ -1,7 +1,8 @@
+"use client"
+
 import { useEffect, useState } from 'react'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { getSession, login, resetPassword } from '../src/services/authService'
+import { useRouter } from 'next/navigation'
+import { getSession, login, resetPassword } from '../../src/services/authService'
 
 export default function Login() {
   const router = useRouter()
@@ -18,6 +19,10 @@ export default function Login() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [resetError, setResetError] = useState('')
   const [isResetLoading, setIsResetLoading] = useState(false)
+
+  useEffect(() => {
+    document.title = 'Mis Finanzas - Iniciar sesión'
+  }, [])
 
   useEffect(() => {
     const session = getSession()
@@ -120,10 +125,6 @@ export default function Login() {
 
   return (
     <>
-      <Head>
-        <title>Mis Finanzas - Iniciar sesión</title>
-      </Head>
-
       <div className="container-fluid min-vh-100 bg-body-tertiary">
         <div className="row g-0 min-vh-100">
           <div className="col-lg-6 d-none d-lg-flex flex-column justify-content-center p-5 bg-light border-end">

@@ -1,5 +1,7 @@
-import { useRouter } from 'next/router'
-import Layout from '../components/Layout'
+"use client"
+
+import { useRouter } from 'next/navigation'
+import Layout from '../../components/Layout'
 
 export default function EliminarTransaccion() {
   const router = useRouter()

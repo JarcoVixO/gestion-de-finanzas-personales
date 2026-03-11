@@ -1,6 +1,8 @@
+"use client"
+
 import { useState } from 'react'
-import { useRouter } from 'next/router'
-import Layout from '../components/Layout'
+import { useRouter } from 'next/navigation'
+import Layout from '../../components/Layout'
 
 export default function EditarTransaccion() {
   const router = useRouter()
