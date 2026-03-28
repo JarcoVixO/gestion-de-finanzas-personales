@@ -109,3 +109,49 @@ src/
 │       └── index.ts
 ├── lib/                        # Compartido (Supabase Client, Utils)
 └── components/ui/              # Design System (Botones, Inputs de Shadcn)
+
+
+
+
+
+
+
+
+
+
+
+
+
+src/
+├── app/                           # Aplicación Web Next.js (Routing)
+│   ├── (auth)/                    # Módulo Auth (Middleware/Protección)
+│   │   ├── login/
+│   │   └── register/
+│   ├── (dashboard)/               # Layout principal para Usuario Financiero
+│   │   ├── presupuestos/          # Módulo Presupuestos
+│   │   ├── carteras/              # Módulo Carteras
+│   │   ├── finanzas/              # Módulo Finanzas (Transacciones)
+│   │   └── graficas/              # Módulo Gráficas (Analytics)
+│   └── admin/                     # Admin Sistema (Moderación y Gestión Global)
+│       ├── usuarios/
+│       └── categorias/
+├── modules/                       # Módulos de Negocio (Lógica encapsulada)
+│   ├── auth/                      # Lógica de sesión y protección
+│   ├── presupuestos/              # Services, Actions y Tipos de Presupuestos
+│   ├── finanzas/                  # Lógica de Transacciones
+│   ├── carteras/
+│   ├── categorias/                # Gestión de categorías Personales y Globales
+│   ├── usuarios/                  # Gestión de Perfil
+│   ├── graficas/                  # Procesamiento de datos para Analytics
+│   └── notificaciones/            # Integración con Brevo
+├── lib/                           # Clientes de Servicios Externos
+│   ├── supabase/                  # Cliente Supabase (DB y Auth)
+│   │   ├── client.ts              # Browser client
+│   │   └── server.ts              # Server client
+│   └── brevo.ts                   # Cliente Brevo (Email/SMTP API)
+├── components/                    # UI Components (Cliente SPA React)
+│   ├── ui/                        # Componentes atómicos (Botones, Inputs)
+│   └── shared/                    # Layouts y componentes reutilizables
+├── hooks/                         # Hooks personalizados para la UI
+├── types/                         # Definiciones de TypeScript globales
+└── middleware.ts                  # Módulo Auth (Protección de Rutas y Sesión)
