@@ -1,9 +1,9 @@
 "use client"
 
 import { useMemo, useState } from 'react'
-import Layout from '../../components/Layout'
-import { useStore } from '../../store/useStore'
-import withAuth from '../../src/guards/withAuth'
+import Layout from '../../../../components/Layout'
+import { useStore } from '../../../../hooks/useStore'
+import withAuth from '../../../../src/guards/withAuth'
 
 function Presupuestos() {
   const { accounts, budgets, addBudget, updateBudget, deleteBudget, addBudgetExpense } = useStore()

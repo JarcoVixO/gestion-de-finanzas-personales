@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getSession, login, registerUser, resetPassword } from '../../src/services/authService'
+import { getSession, login, registerUser, resetPassword } from '../../../src/services/authService'
 
 const AUTH_TABS = {
   LOGIN: 'login',

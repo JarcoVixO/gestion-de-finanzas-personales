@@ -3,9 +3,9 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import Layout from '../../components/Layout'
-import { useStore } from '../../store/useStore'
-import withAuth from '../../src/guards/withAuth'
+import Layout from '../../../components/Layout'
+import { useStore } from '../../../hooks/useStore'
+import withAuth from '../../../src/guards/withAuth'
 
 function Transacciones() {
   const { transactions, deleteTransaction } = useStore()

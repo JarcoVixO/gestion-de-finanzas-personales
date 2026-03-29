@@ -1,61 +1,26 @@
 "use client"
 
-import { useEffect, useMemo, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Layout from '../../components/Layout'
-import { useStore } from '../../store/useStore'
-import withAuth from '../../src/guards/withAuth'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Layout from '../../../../components/Layout'
+import { useStore } from '../../../../hooks/useStore'
 
-const toInputDate = (value) => {
-  if (!value) {
-    return new Date().toISOString().slice(0, 10)
-  }
-
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return value
-  }
-
-  const parsed = new Date(value)
-  if (Number.isNaN(parsed.getTime())) {
-    return new Date().toISOString().slice(0, 10)
-  }
-
-  return parsed.toISOString().slice(0, 10)
-}
-
-function EditarTransaccion() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { transactions, accounts, updateTransaction } = useStore()
+export default function NuevaTransaccion() {
+  const { accounts, budgets, addTransaction } = useStore()
+  const [type, setType] = useState('expense')
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
-  const [type, setType] = useState('expense')
   const [accountId, setAccountId] = useState('')
-  const transactionId = searchParams.get('id')
-
-  const transaction = useMemo(
-    () => transactions.find((tx) => String(tx.id) === String(transactionId)),
-    [transactionId, transactions]
-  )
+  const [budgetId, setBudgetId] = useState('')
+  const [category, setCategory] = useState('food')
+  const router = useRouter()
 
   useEffect(() => {
-    if (!transactionId) {
-      router.replace('/transacciones')
+    if (!accountId && accounts.length > 0) {
+      setAccountId(accounts[0].id)
     }
-  }, [router, transactionId])
-
-  useEffect(() => {
-    if (!transaction) {
-      return
-    }
-
-    setDescription(transaction.description || '')
-    setAmount(String(Math.abs(Number(transaction.amount) || 0)))
-    setDate(toInputDate(transaction.date))
-    setType((Number(transaction.amount) || 0) < 0 ? 'expense' : 'income')
-    setAccountId(transaction.accountId || '')
-  }, [transaction])
+  }, [accountId, accounts])
 
   const closeModal = () => {
     router.push('/transacciones')
@@ -64,55 +29,25 @@ function EditarTransaccion() {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    if (!transaction) {
-      return
-    }
-
     const trimmedDescription = description.trim()
     const parsedAmount = Number.parseFloat(amount || '0')
 
-    if (!trimmedDescription || !Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    if (!trimmedDescription || !accountId || !Number.isFinite(parsedAmount) || parsedAmount <= 0) {
       return
     }
 
     const finalAmount = type === 'expense' ? -Math.abs(parsedAmount) : Math.abs(parsedAmount)
-
-    updateTransaction({
-      id: transaction.id,
-      description: trimmedDescription,
-      amount: finalAmount,
-      date,
-      accountId: accountId || null
-    })
-
+    addTransaction({ description: trimmedDescription, amount: finalAmount, accountId, date, category, type })
     closeModal()
   }
 
-  if (transactionId && !transaction) {
-    return (
-      <Layout title="Editar Transacción - Mi Finanzas">
-        <div className="container-xl py-4 py-lg-5">
-          <header className="page-header-panel">
-            <div>
-              <h2 className="h2 fw-bold mb-1">Editar transacción</h2>
-              <p className="text-secondary mb-0">No encontramos esa transacción.</p>
-            </div>
-          </header>
-          <button type="button" className="btn btn-outline-secondary" onClick={closeModal}>
-            Volver a transacciones
-          </button>
-        </div>
-      </Layout>
-    )
-  }
-
   return (
-    <Layout title="Editar Transacción - Mi Finanzas">
+    <Layout title="Nueva Transacción - Mi Finanzas">
       <div className="container-xl py-4 py-lg-5">
         <header className="page-header-panel">
           <div>
-            <h2 className="h2 fw-bold mb-1">Editar transacción</h2>
-            <p className="text-secondary mb-0">Actualiza los datos del movimiento seleccionado.</p>
+            <h2 className="h2 fw-bold mb-1">Nueva transacción</h2>
+            <p className="text-secondary mb-0">Completa los datos para registrar un movimiento financiero.</p>
           </div>
         </header>
       </div>
@@ -131,7 +66,7 @@ function EditarTransaccion() {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Editar transacción</h5>
+              <h5 className="modal-title">Nueva transacción</h5>
               <button type="button" className="btn-close" aria-label="Cerrar" onClick={closeModal} />
             </div>
             <form onSubmit={handleSubmit}>
@@ -142,26 +77,26 @@ function EditarTransaccion() {
                     <input
                       checked={type === 'expense'}
                       className="btn-check"
-                      id="edit-tx-type-expense"
-                      name="edit-tx-type"
+                      id="tx-type-expense"
+                      name="tx-type"
                       type="radio"
                       value="expense"
                       onChange={() => setType('expense')}
                     />
-                    <label className="btn btn-outline-danger" htmlFor="edit-tx-type-expense">
+                    <label className="btn btn-outline-danger" htmlFor="tx-type-expense">
                       Gasto
                     </label>
 
                     <input
                       checked={type === 'income'}
                       className="btn-check"
-                      id="edit-tx-type-income"
-                      name="edit-tx-type"
+                      id="tx-type-income"
+                      name="tx-type"
                       type="radio"
                       value="income"
                       onChange={() => setType('income')}
                     />
-                    <label className="btn btn-outline-success" htmlFor="edit-tx-type-income">
+                    <label className="btn btn-outline-success" htmlFor="tx-type-income">
                       Ingreso
                     </label>
                   </div>
@@ -213,8 +148,11 @@ function EditarTransaccion() {
                     className="form-select"
                     value={accountId}
                     onChange={(event) => setAccountId(event.target.value)}
+                    required
                   >
-                    <option value="">Sin cuenta</option>
+                    {accounts.length === 0 && (
+                      <option value="">No hay carteras disponibles</option>
+                    )}
                     {accounts.map((account) => (
                       <option key={account.id} value={account.id}>
                         {account.name}
@@ -222,13 +160,48 @@ function EditarTransaccion() {
                     ))}
                   </select>
                 </div>
+
+                <div>
+                  <label className="form-label fw-semibold">Presupuesto</label>
+                  <select
+                    className="form-select"
+                    value={budgetId}
+                    onChange={(event) => setBudgetId(event.target.value)}
+                    aria-describedby="budget-help-text"
+                  >
+                    {budgets.map((budget) => (
+                      <option key={budget.id} value={budget.id}>
+                        {budget.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p id="budget-help-text" className="form-text text-secondary opacity-75 mb-0">
+                    Este campo es opcional
+                  </p>
+                </div>
+
+                <div>
+                  <label className="form-label fw-semibold">Categoría</label>
+                  <select
+                    className="form-select"
+                    value={category}
+                    onChange={(event) => setCategory(event.target.value)}
+                  >
+                    <option value="food">Comida y Restaurantes</option>
+                    <option value="transport">Transporte</option>
+                    <option value="savings">Ahorros</option>
+                    <option value="salary">Salario</option>
+                    <option value="leisure">Ocio</option>
+                    <option value="other">Otros</option>
+                  </select>
+                </div>
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-outline-secondary" onClick={closeModal}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  Guardar cambios
+                <button type="submit" className="btn btn-primary" disabled={accounts.length === 0}>
+                  Guardar transacción
                 </button>
               </div>
             </form>
@@ -239,5 +212,3 @@ function EditarTransaccion() {
     </Layout>
   )
 }
-
-export default withAuth(EditarTransaccion)
