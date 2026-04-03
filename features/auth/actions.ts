@@ -20,6 +20,36 @@ export interface AuthActionResult {
   user?: AuthUser
 }
 
+const toSpanishAuthMessage = (message?: string): string => {
+  if (!message) {
+    return 'No se pudo completar la operación de autenticación.'
+  }
+
+  const normalized = message.trim().toLowerCase()
+
+  if (normalized === 'invalid login credentials') {
+    return 'Correo o contraseña incorrectos.'
+  }
+
+  if (normalized === 'email not confirmed') {
+    return 'Debes confirmar tu correo antes de iniciar sesión.'
+  }
+
+  if (normalized === 'user already registered') {
+    return 'Ya existe una cuenta con ese correo.'
+  }
+
+  if (normalized.includes('password should be at least')) {
+    return 'La contraseña no cumple el mínimo de caracteres requerido.'
+  }
+
+  if (normalized.includes('unable to validate email address')) {
+    return 'El formato del correo electrónico no es válido.'
+  }
+
+  return message
+}
+
 export async function loginAction(formData: FormData): Promise<AuthActionResult> {
   const email = String(formData.get('email') || '').trim().toLowerCase()
   const password = String(formData.get('password') || '').trim()
@@ -33,7 +63,7 @@ export async function loginAction(formData: FormData): Promise<AuthActionResult>
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error || !data.session || !data.user) {
-      return { success: false, message: error?.message || 'No se pudo iniciar sesión.' }
+      return { success: false, message: toSpanishAuthMessage(error?.message) || 'No se pudo iniciar sesión.' }
     }
 
     const cookieStore = cookies()
@@ -71,7 +101,7 @@ export async function requestPasswordResetAction(formData: FormData): Promise<Au
     const { error } = await supabase.auth.resetPasswordForEmail(email)
 
     if (error) {
-      return { success: false, message: error.message || 'No se pudo procesar la solicitud.' }
+      return { success: false, message: toSpanishAuthMessage(error.message) || 'No se pudo procesar la solicitud.' }
     }
 
     return {
@@ -114,7 +144,7 @@ export async function registerAction(formData: FormData): Promise<AuthActionResu
     })
 
     if (error) {
-      return { success: false, message: error.message || 'No se pudo crear la cuenta.' }
+      return { success: false, message: toSpanishAuthMessage(error.message) || 'No se pudo crear la cuenta.' }
     }
 
     return {

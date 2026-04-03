@@ -27,15 +27,8 @@ export const createSupabaseServerAuthClient = () => {
 }
 
 export const verifyAccessToken = async (accessToken: string): Promise<boolean> => {
-  const { url, anonKey } = getSupabaseEnv()
-  const supabase = createClient(url, anonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    }
-  })
+  const supabase = createSupabaseServerAuthClient()
 
-  const { data, error } = await supabase.auth.getUser()
+  const { data, error } = await supabase.auth.getUser(accessToken)
   return Boolean(data.user && !error)
 }

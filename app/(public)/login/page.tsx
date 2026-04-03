@@ -61,16 +61,22 @@ export default function LoginPage() {
     setError('')
     setSuccess('')
 
-    setIsLoading(true)
-    const result = await loginAction(formData)
+    try {
+      setIsLoading(true)
+      const result = await loginAction(formData)
 
-    if (!result.success) {
-      setError(result.message || 'Correo o contraseña incorrectos.')
+      if (!result.success) {
+        setError(result.message || 'Correo o contraseña incorrectos.')
+        return
+      }
+
+      router.replace('/finanzas')
+      router.refresh()
+    } catch (error) {
+      setError('No se pudo completar el inicio de sesión. Inténtalo de nuevo.')
+    } finally {
       setIsLoading(false)
-      return
     }
-
-    router.push('/finanzas')
   }
 
   const handleResetSuccess = ({ email: nextEmail, message }: ResetPasswordSuccessPayload): void => {
