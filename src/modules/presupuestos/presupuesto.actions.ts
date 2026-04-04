@@ -1,48 +1,72 @@
-import type { Budget, BudgetVisuals, BudgetWithVisuals } from '../../shared/types/finance'
+'use server'
 
-export function formatBudgetDueDate(value: string | null | undefined): string {
-  if (!value) {
-    return ''
-  }
+import { cookies } from 'next/headers'
+import { revalidatePath } from 'next/cache'
+import {
+  AUTH_ACCESS_TOKEN_COOKIE,
+  createSupabaseServerAuthClient
+} from '@/src/lib/supabaseClient'
+import type { ServiceResult } from '@/src/shared/types/common'
+import type { Presupuesto, CreatePresupuestoInput, UpdatePresupuestoInput } from './presupuesto.schema'
+import * as presupuestoService from './presupuesto.service'
 
-  const date = new Date(`${value}T00:00:00`)
+async function getUserId(): Promise<string> {
+  const cookieStore = cookies()
+  const accessToken = cookieStore.get(AUTH_ACCESS_TOKEN_COOKIE)?.value
+  if (!accessToken) throw new Error('No autenticado')
 
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
+  const supabase = createSupabaseServerAuthClient()
+  const { data, error } = await supabase.auth.getUser(accessToken)
+  if (error || !data.user) throw new Error('Sesión inválida')
 
-  return date.toLocaleDateString('es-SV', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  })
+  return data.user.id
 }
 
-export function getBudgetVisuals(name: string): BudgetVisuals {
-  const normalizedName = name.toLowerCase()
-
-  if (normalizedName.includes('aliment')) {
-    return { icon: 'restaurant', iconBg: 'bg-primary bg-opacity-10 text-primary', barClass: 'bg-primary' }
+export async function listarPresupuestosAction(): Promise<ServiceResult<Presupuesto[]>> {
+  try {
+    const userId = await getUserId()
+    return presupuestoService.listar(userId)
+  } catch {
+    return { ok: false, message: 'Sesión no válida.' }
   }
-
-  if (normalizedName.includes('transport')) {
-    return { icon: 'directions_car', iconBg: 'bg-warning bg-opacity-25 text-warning-emphasis', barClass: 'bg-warning' }
-  }
-
-  if (normalizedName.includes('entreten')) {
-    return { icon: 'movie', iconBg: 'bg-danger bg-opacity-10 text-danger', barClass: 'bg-danger' }
-  }
-
-  if (normalizedName.includes('hogar') || normalizedName.includes('servicio')) {
-    return { icon: 'bolt', iconBg: 'bg-info bg-opacity-10 text-info', barClass: 'bg-info' }
-  }
-
-  return { icon: 'savings', iconBg: 'bg-secondary bg-opacity-10 text-secondary', barClass: 'bg-secondary' }
 }
 
-export function mapBudgetsWithVisuals(budgets: Budget[]): BudgetWithVisuals[] {
-  return budgets.map((budget) => ({
-    ...budget,
-    ...getBudgetVisuals(budget.name)
-  }))
+export async function crearPresupuestoAction(
+  input: CreatePresupuestoInput
+): Promise<ServiceResult<Presupuesto>> {
+  try {
+    const userId = await getUserId()
+    const result = await presupuestoService.crear(userId, input)
+    if (result.ok) revalidatePath('/presupuestos')
+    return result
+  } catch {
+    return { ok: false, message: 'Error inesperado.' }
+  }
+}
+
+export async function actualizarPresupuestoAction(
+  id: string,
+  input: UpdatePresupuestoInput
+): Promise<ServiceResult<Presupuesto>> {
+  try {
+    const userId = await getUserId()
+    const result = await presupuestoService.actualizar(userId, id, input)
+    if (result.ok) revalidatePath('/presupuestos')
+    return result
+  } catch {
+    return { ok: false, message: 'Error inesperado.' }
+  }
+}
+
+export async function eliminarPresupuestoAction(
+  id: string
+): Promise<ServiceResult<void>> {
+  try {
+    const userId = await getUserId()
+    const result = await presupuestoService.eliminar(userId, id)
+    if (result.ok) revalidatePath('/presupuestos')
+    return result
+  } catch {
+    return { ok: false, message: 'Error inesperado.' }
+  }
 }

@@ -1,40 +1,70 @@
-import type { Account, WalletSummary, WalletVisuals } from '../../shared/types/finance'
+'use server'
 
-export function getWalletGoal(balance: number, goal?: number | null): number {
-  const safeGoal = typeof goal === 'number' && Number.isFinite(goal) ? goal : null
+import { cookies } from 'next/headers'
+import { revalidatePath } from 'next/cache'
+import {
+  AUTH_ACCESS_TOKEN_COOKIE,
+  createSupabaseServerAuthClient
+} from '@/src/lib/supabaseClient'
+import type { ServiceResult } from '@/src/shared/types/common'
+import type { Cartera, CreateCarteraInput, UpdateCarteraInput } from './cartera.schema'
+import * as carteraService from './cartera.service'
 
-  if (safeGoal && safeGoal > 0) {
-    return safeGoal
-  }
+async function getUserId(): Promise<string> {
+  const cookieStore = cookies()
+  const accessToken = cookieStore.get(AUTH_ACCESS_TOKEN_COOKIE)?.value
+  if (!accessToken) throw new Error('No autenticado')
 
-  return Math.max(Math.round(Math.abs(balance) * 1.2), 100)
+  const supabase = createSupabaseServerAuthClient()
+  const { data, error } = await supabase.auth.getUser(accessToken)
+  if (error || !data.user) throw new Error('Sesión inválida')
+
+  return data.user.id
 }
 
-export function getWalletVisuals(account: Account): WalletVisuals {
-  const normalizedType = (account.type || '').toLowerCase()
-
-  if (normalizedType.includes('banco')) {
-    return { icon: 'account_balance', iconBg: 'bg-secondary bg-opacity-10 text-secondary' }
+export async function listarCarterasAction(): Promise<ServiceResult<Cartera[]>> {
+  try {
+    const userId = await getUserId()
+    return carteraService.listar(userId)
+  } catch {
+    return { ok: false, message: 'Sesión no válida' }
   }
-
-  if (normalizedType.includes('efectivo')) {
-    return { icon: 'savings', iconBg: 'bg-primary bg-opacity-10 text-primary' }
-  }
-
-  return { icon: 'account_balance_wallet', iconBg: 'bg-warning bg-opacity-25 text-warning-emphasis' }
 }
 
-export function mapWallets(accounts: Account[]): WalletSummary[] {
-  return accounts.map((account) => {
-    const visuals = getWalletVisuals(account)
+export async function crearCarteraAction(
+  input: CreateCarteraInput
+): Promise<ServiceResult<Cartera>> {
+  try {
+    const userId = await getUserId()
+    const result = await carteraService.crear(userId, input)
+    if (result.ok) revalidatePath('/carteras')
+    return result
+  } catch {
+    return { ok: false, message: 'Error inesperado' }
+  }
+}
 
-    return {
-      id: account.id,
-      name: account.name,
-      balance: account.balance,
-      goal: getWalletGoal(account.balance, account.goal),
-      icon: visuals.icon,
-      iconBg: visuals.iconBg
-    }
-  })
+export async function actualizarCarteraAction(
+  id: string,
+  input: Partial<UpdateCarteraInput>
+): Promise<ServiceResult<Cartera>> {
+  try {
+    const result = await carteraService.actualizar(id, input)
+    if (result.ok) revalidatePath('/carteras')
+    return result
+  } catch {
+    return { ok: false, message: 'Error inesperado' }
+  }
+}
+
+export async function eliminarCarteraAction(
+  id: string
+): Promise<ServiceResult<void>> {
+  try {
+    const result = await carteraService.eliminar(id)
+    if (result.ok) revalidatePath('/carteras')
+    return result
+  } catch {
+    return { ok: false, message: 'Error inesperado' }
+  }
 }

@@ -1,94 +1,74 @@
+'use server'
+
+import { cookies } from 'next/headers'
+import { revalidatePath } from 'next/cache'
+import {
+  AUTH_ACCESS_TOKEN_COOKIE,
+  createSupabaseServerAuthClient
+} from '@/src/lib/supabaseClient'
+import type { ServiceResult } from '@/src/shared/types/common'
 import type {
-  Transaction,
-  TransactionCategoryMeta,
-  TransactionFormState,
-  TransactionType
-} from '../../shared/types/finance'
+  Transaccion,
+  CreateTransaccionInput,
+  UpdateTransaccionInput
+} from './transaccion.schema'
+import * as transaccionService from './transaccion.service'
 
-const TODAY = (): string => new Date().toISOString().slice(0, 10)
+async function getUserId(): Promise<string> {
+  const cookieStore = cookies()
+  const accessToken = cookieStore.get(AUTH_ACCESS_TOKEN_COOKIE)?.value
+  if (!accessToken) throw new Error('No autenticado')
 
-export function createEmptyTransactionForm(): TransactionFormState {
-  return {
-    type: 'expense',
-    description: '',
-    amount: '',
-    date: TODAY(),
-    accountId: '',
-    budgetId: '',
-    category: 'food'
+  const supabase = createSupabaseServerAuthClient()
+  const { data, error } = await supabase.auth.getUser(accessToken)
+  if (error || !data.user) throw new Error('Sesión inválida')
+
+  return data.user.id
+}
+
+export async function listarTransaccionesAction(): Promise<ServiceResult<Transaccion[]>> {
+  try {
+    const userId = await getUserId()
+    return transaccionService.listar(userId)
+  } catch {
+    return { ok: false, message: 'Sesión no válida' }
   }
 }
 
-export function createTransactionFormFromTransaction(
-  transaction: Transaction | null | undefined
-): TransactionFormState {
-  const baseForm = createEmptyTransactionForm()
-
-  if (!transaction) {
-    return baseForm
-  }
-
-  return {
-    ...baseForm,
-    description: transaction.description || '',
-    amount: String(Math.abs(Number(transaction.amount) || 0)),
-    date: toInputDate(transaction.date),
-    type: (Number(transaction.amount) || 0) < 0 ? 'expense' : 'income',
-    accountId: transaction.accountId || ''
+export async function crearTransaccionAction(
+  input: CreateTransaccionInput
+): Promise<ServiceResult<Transaccion>> {
+  try {
+    const userId = await getUserId()
+    const result = await transaccionService.crear(userId, input)
+    if (result.ok) revalidatePath('/finanzas')
+    return result
+  } catch {
+    return { ok: false, message: 'Error inesperado' }
   }
 }
 
-export function toInputDate(value: string | null | undefined): string {
-  if (!value) {
-    return TODAY()
+export async function actualizarTransaccionAction(
+  id: string,
+  input: Partial<UpdateTransaccionInput>
+): Promise<ServiceResult<Transaccion>> {
+  try {
+    const result = await transaccionService.actualizar(id, input)
+    if (result.ok) revalidatePath('/finanzas')
+    return result
+  } catch {
+    return { ok: false, message: 'Error inesperado' }
   }
-
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return value
-  }
-
-  const parsedDate = new Date(value)
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return TODAY()
-  }
-
-  return parsedDate.toISOString().slice(0, 10)
 }
 
-export function formatTransactionDate(value: string | null | undefined): string {
-  if (!value) {
-    return 'Sin fecha'
+export async function eliminarTransaccionAction(
+  id: string
+): Promise<ServiceResult<void>> {
+  try {
+    const result = await transaccionService.eliminar(id)
+    if (result.ok) revalidatePath('/finanzas')
+    return result
+  } catch {
+    return { ok: false, message: 'Error inesperado' }
   }
-
-  const date = new Date(`${value}T00:00:00`)
-
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  return date.toLocaleDateString('es-SV', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  })
-}
-
-export function getTransactionCategoryMeta(transaction: Transaction): TransactionCategoryMeta {
-  const isIncome = transaction.amount >= 0
-  const normalizedDescription = (transaction.description || '').toLowerCase()
-
-  if (isIncome && normalizedDescription.includes('sueldo')) {
-    return { label: 'Salario', badgeClass: 'text-bg-success', icon: 'work' }
-  }
-
-  if (isIncome) {
-    return { label: 'Ingreso', badgeClass: 'text-bg-success', icon: 'trending_up' }
-  }
-
-  return { label: 'Gasto', badgeClass: 'text-bg-warning text-dark', icon: 'receipt_long' }
-}
-
-export function getSignedTransactionAmount(amount: number, type: TransactionType): number {
-  return type === 'expense' ? -Math.abs(amount) : Math.abs(amount)
 }

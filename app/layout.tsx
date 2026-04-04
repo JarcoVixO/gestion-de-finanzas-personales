@@ -5,9 +5,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Mi Finanzas',
-  icons: {
-    icon: '/favicon.svg'
-  }
+  icons: { icon: '/favicon.svg' }
 }
 
 interface RootLayoutProps {
@@ -31,4 +29,3 @@ export default function RootLayout({ children }: RootLayoutProps) {
     </html>
   )
 }
-
