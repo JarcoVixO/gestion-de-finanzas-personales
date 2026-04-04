@@ -6,9 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --project tsconfig.json --noEmit && tsc --project backend/tsconfig.json --noEmit",
-    "typecheck:backend": "tsc --project backend/tsconfig.json --noEmit",
-    "build:backend": "tsc --project backend/tsconfig.json"
+    "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",

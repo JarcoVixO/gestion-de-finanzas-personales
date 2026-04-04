@@ -4,7 +4,7 @@ import {
   AUTH_ACCESS_TOKEN_COOKIE,
   AUTH_REFRESH_TOKEN_COOKIE,
   verifyAccessToken
-} from './backend/lib/supabase'
+} from './src/lib/supabaseClient'
 
 // protectedPrefixes define las rutas que requieren autenticación. Cualquier ruta que comience con uno de estos prefijos será protegida por el middleware.
 const protectedPrefixes = ['/finanzas', '/carteras', '/presupuestos']

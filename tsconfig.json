@@ -29,11 +29,8 @@
     "global.d.ts",
     "app/**/*.ts",
     "app/**/*.tsx",
-    "features/**/*.ts",
-    "features/**/*.tsx",
-    "shared/**/*.ts",
-    "shared/**/*.tsx",
-    "types/**/*.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "middleware.ts",
     ".next/types/**/*.ts"
   ],

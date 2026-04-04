@@ -1,8 +1,13 @@
 # Sistema de Gestión de Finanzas Personales
 
-Aplicación Next.js, Zustand, Bootstrap y Supabase.
+Aplicación con Next.js (App Router), Zustand, Bootstrap y Supabase.
 
-## Instrucciones
+## Requisitos
+
+- Node.js 18+
+- npm
+
+## Comandos
 
 1. Instalar dependencias:
 
@@ -16,24 +21,32 @@ npm install
 npm run dev
 ```
 
-3. Abrir http://localhost:3000
+3. Verificar tipos:
 
-## Estructura
+```bash
+npm run typecheck
+```
 
-- `pages/` - Páginas Next.js (transacciones, carteras, presupuestos, login, etc.)
-- `components/Layout.js` - Layout principal con sidebar
-- `store/useStore.js` - Estado global con Zustand
-- `styles/globals.css` - Estilos globales con Tailwind CSS
+4. Build de producción:
 
-## Características
+```bash
+npm run build
+```
 
-- Diseño moderno con Tailwind CSS
-- Iconos Material Symbols
-- Fuente Inter
-- Sidebar de navegación
-- Páginas: Transacciones, Carteras, Presupuestos, Login, Crear Cuenta
+## Estructura actual
+
+- `app/` - Entradas de UI y rutas de Next.js
+	- `(auth)/login`, `(auth)/register`
+	- `finanzas`, `finanzas/[id]`
+	- `carteras`, `carteras/[id]`
+	- `presupuestos`, `presupuestos/[id]`
+- `src/auth/autenticacion/` - módulo de autenticación (acciones, servicio y componentes)
+- `src/modules/` - módulos de negocio (`finanzas`, `carteras`, `presupuestos`)
+- `src/lib/` - infraestructura (Supabase, Brevo)
+- `src/shared/` - componentes, hooks y tipos reutilizables
+- `middleware.ts` - protección de rutas y control de sesión
 
 ## Notas
 
-- El proyecto salta el login al iniciar (redirige a /transacciones)
-- La página de login está lista para conectar con Supabase en el futuro
+- La ruta raíz redirige a `/login`.
+- La autenticación usa cookies HTTP-only y validación de sesión en middleware.
