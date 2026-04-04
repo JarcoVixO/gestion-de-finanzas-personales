@@ -3,6 +3,7 @@
 import { useTransaccionStore } from '../hooks/useTransaccionStore'
 import TransaccionFila from './TransaccionFila'
 import type { Transaccion } from '../transaccion.schema'
+import LoadingSpinner from '@/src/shared/components/LoadingSpinner'
 
 interface TransaccionTableProps {
   transacciones: Transaccion[]
@@ -21,6 +22,10 @@ export default function TransaccionTable({
 }: TransaccionTableProps) {
   const { openMenuId, toggleMenu, closeMenu } = useTransaccionStore()
 
+  if (isLoading) {
+    return <LoadingSpinner message="Cargando transacciones..." />
+  }
+  
   return (
     <div className="card border-0 shadow-sm">
       <div className="table-responsive transactions-table-responsive">
@@ -36,13 +41,6 @@ export default function TransaccionTable({
             </tr>
           </thead>
           <tbody>
-            {isLoading && (
-              <tr>
-                <td colSpan={6} className="text-center text-secondary py-4">
-                  Cargando transacciones...
-                </td>
-              </tr>
-            )}
             {!isLoading && transacciones.map((tx) => (
               <TransaccionFila
                 key={tx.id}

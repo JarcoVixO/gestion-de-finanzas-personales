@@ -2,6 +2,7 @@
 
 import type { PresupuestoSummary } from '../presupuesto.schema'
 import PresupuestoCard from './PresupuestoCard'
+import LoadingSpinner from '@/src/shared/components/LoadingSpinner'
 
 interface PresupuestoListProps {
   presupuestos: PresupuestoSummary[]
@@ -17,12 +18,7 @@ export default function PresupuestoList({
   onDelete
 }: PresupuestoListProps) {
   if (isLoading) {
-    return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" />
-        <p className="text-secondary mt-3">Cargando presupuestos...</p>
-      </div>
-    )
+    return <LoadingSpinner message="Cargando presupuestos..." />
   }
 
   if (presupuestos.length === 0) {

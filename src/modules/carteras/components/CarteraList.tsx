@@ -3,6 +3,7 @@
 import type { CarteraSummary } from '../cartera.schema'
 import { useCarteraStore } from '../hooks/useCarteraStore'
 import CarteraCard from './CarteraCard'
+import LoadingSpinner from '@/src/shared/components/LoadingSpinner'
 
 interface CarteraListProps {
   carteras: CarteraSummary[]
@@ -20,7 +21,7 @@ export default function CarteraList({
   const { openMenuId, toggleMenu, closeMenu } = useCarteraStore()
 
   if (isLoading) {
-    return <p className="text-secondary small">Cargando carteras...</p>
+    return <LoadingSpinner message="Cargando carteras..." />
   }
 
   if (carteras.length === 0) {
