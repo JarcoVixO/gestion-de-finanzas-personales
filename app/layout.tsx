@@ -4,7 +4,10 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Mi Finanzas'
+  title: 'Mi Finanzas',
+  icons: {
+    icon: '/favicon.svg'
+  }
 }
 
 interface RootLayoutProps {

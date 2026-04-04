@@ -54,7 +54,6 @@ export default function LoginPage() {
       }
 
       router.replace('/finanzas')
-      router.refresh()
     } catch (error) {
       setError('No se pudo completar el inicio de sesión. Inténtalo de nuevo.')
     } finally {
