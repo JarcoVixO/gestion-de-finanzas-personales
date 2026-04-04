@@ -1,49 +1,84 @@
-﻿"use client"
+﻿'use client'
 
 import type { FormEvent, MouseEvent } from 'react'
-import { useMemo, useState } from 'react'
-import { formatBudgetDueDate, mapBudgetsWithVisuals } from '@/src/modules/presupuestos/presupuesto.actions'
+import { useEffect, useState } from 'react'
+import {
+  createPresupuestoAction,
+  deletePresupuestoAction,
+  getPresupuestosAction,
+  updatePresupuestoAction
+} from '@/src/modules/presupuestos/presupuesto.server-actions'
 import AppLayout from '@/src/shared/components/AppLayout'
 import withAuth from '@/src/shared/hooks/withAuth'
-import { useAppStore } from '@/src/shared/hooks/useAppStore'
-import type { BudgetWithVisuals } from '@/src/shared/types/finance'
+import type { PresupuestoRecord } from '@/src/shared/types/domain'
 
 function Presupuestos() {
-  const { accounts, budgets, addBudget, updateBudget, deleteBudget, addBudgetExpense } = useAppStore()
+  const [presupuestos, setPresupuestos] = useState<PresupuestoRecord[]>([])
+  const [loading, setLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
-  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState<boolean>(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
   const [isCreatePanelOpen, setIsCreatePanelOpen] = useState<boolean>(false)
 
-  const [editingBudgetId, setEditingBudgetId] = useState<string | null>(null)
-  const [selectedBudget, setSelectedBudget] = useState<BudgetWithVisuals | null>(null)
+  const [editingPresupuestoId, setEditingPresupuestoId] = useState<string | null>(null)
+  const [selectedPresupuesto, setSelectedPresupuesto] = useState<PresupuestoRecord | null>(null)
 
-  const [budgetName, setBudgetName] = useState<string>('')
-  const [budgetLimit, setBudgetLimit] = useState<string>('')
-  const [expenseAmount, setExpenseAmount] = useState<string>('')
-  const [expenseAccountId, setExpenseAccountId] = useState<string>('')
+  const [createNombre, setCreateNombre] = useState<string>('')
+  const [createMontoLimite, setCreateMontoLimite] = useState<string>('')
+  const [createFechaInicio, setCreateFechaInicio] = useState<string>('')
+  const [createFechaFin, setCreateFechaFin] = useState<string>('')
 
-  const [createTitle, setCreateTitle] = useState<string>('')
-  const [createDueDate, setCreateDueDate] = useState<string>('')
-  const [createLimit, setCreateLimit] = useState<string>('')
+  const [editNombre, setEditNombre] = useState<string>('')
+  const [editMontoLimite, setEditMontoLimite] = useState<string>('')
+  const [editFechaInicio, setEditFechaInicio] = useState<string>('')
+  const [editFechaFin, setEditFechaFin] = useState<string>('')
 
-  const totalBudgeted = budgets.reduce((sum, budget) => sum + (budget.limit || 0), 0)
-  const totalSpent = budgets.reduce((sum, budget) => sum + (budget.spent || 0), 0)
-  const potentialSavings = totalBudgeted - totalSpent
-  const spendingPercent = totalBudgeted > 0 ? Math.round((totalSpent / totalBudgeted) * 100) : 0
+  // Load presupuestos on mount
+  useEffect(() => {
+    loadPresupuestos()
+  }, [])
 
-  const budgetsWithVisuals = useMemo(() => mapBudgetsWithVisuals(budgets), [budgets])
+  // Clear messages after 5 seconds
+  useEffect(() => {
+    if (errorMessage || successMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage(null)
+        setSuccessMessage(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [errorMessage, successMessage])
+
+  const loadPresupuestos = async (): Promise<void> => {
+    setLoading(true)
+    try {
+      const result = await getPresupuestosAction()
+      if (result.ok) {
+        setPresupuestos(result.data || [])
+      } else {
+        setErrorMessage(result.message || 'No se pudieron cargar los presupuestos.')
+      }
+    } catch (err) {
+      setErrorMessage('Error inesperado al cargar los presupuestos.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const resetCreateForm = (): void => {
-    setCreateTitle('')
-    setCreateDueDate('')
-    setCreateLimit('')
+    setCreateNombre('')
+    setCreateMontoLimite('')
+    setCreateFechaInicio('')
+    setCreateFechaFin('')
   }
 
   const openCreatePanel = (): void => {
     setIsCreatePanelOpen(true)
     resetCreateForm()
+    setErrorMessage(null)
   }
 
   const closeCreatePanel = (): void => {
@@ -51,111 +86,158 @@ function Presupuestos() {
     resetCreateForm()
   }
 
-  const handleCreateBudget = (event: FormEvent<HTMLFormElement>): void => {
+  const handleCreatePresupuesto = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
+    setErrorMessage(null)
 
-    const trimmedTitle = createTitle.trim()
-    const parsedLimit = Number.parseFloat(createLimit || '0')
+    const formData = new FormData()
+    formData.set('nombre', createNombre)
+    formData.set('monto_limite', createMontoLimite)
+    formData.set('fecha_inicio', createFechaInicio)
+    formData.set('fecha_fin', createFechaFin)
 
-    if (!trimmedTitle || !Number.isFinite(parsedLimit) || parsedLimit <= 0) {
-      return
-    }
-
-    addBudget({
-      name: trimmedTitle,
-      limit: parsedLimit,
-      spent: 0,
-      dueDate: createDueDate
+    console.log('[Create Presupuesto] Form data:', {
+      nombre: createNombre,
+      monto_limite: createMontoLimite,
+      fecha_inicio: createFechaInicio,
+      fecha_fin: createFechaFin
     })
 
-    closeCreatePanel()
+    try {
+      const result = await createPresupuestoAction(formData)
+      console.log('[Create Presupuesto] Result:', result)
+      if (result.ok) {
+        setSuccessMessage(result.message || 'Presupuesto creado exitosamente.')
+        closeCreatePanel()
+        await loadPresupuestos()
+      } else {
+        setErrorMessage(result.message || 'No se pudo crear el presupuesto.')
+      }
+    } catch (err) {
+      console.error('[Create Presupuesto] Exception:', err)
+      setErrorMessage('Error inesperado al crear el presupuesto.')
+    }
   }
 
-  const openEditBudgetModal = (budget: BudgetWithVisuals): void => {
-    setEditingBudgetId(budget.id)
-    setBudgetName(budget.name)
-    setBudgetLimit(String(budget.limit))
+  const openEditPresupuestoModal = (presupuesto: PresupuestoRecord): void => {
+    setEditingPresupuestoId(presupuesto.id)
+    setEditNombre(presupuesto.nombre)
+    setEditMontoLimite(String(presupuesto.monto_limite))
+    setEditFechaInicio(presupuesto.fecha_inicio)
+    setEditFechaFin(presupuesto.fecha_fin || '')
     setIsEditModalOpen(true)
     setOpenMenuId(null)
+    setErrorMessage(null)
   }
 
   const closeEditModal = (): void => {
     setIsEditModalOpen(false)
-    setEditingBudgetId(null)
-    setBudgetName('')
-    setBudgetLimit('')
+    setEditingPresupuestoId(null)
+    setEditNombre('')
+    setEditMontoLimite('')
+    setEditFechaInicio('')
+    setEditFechaFin('')
   }
 
-  const handleSaveBudget = (event: FormEvent<HTMLFormElement>): void => {
+  const handleSavePresupuesto = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
+    setErrorMessage(null)
 
-    const trimmedName = budgetName.trim()
-    const parsedLimit = Number.parseFloat(budgetLimit || '0')
+    if (!editingPresupuestoId) return
 
-    if (!editingBudgetId || !trimmedName || !Number.isFinite(parsedLimit) || parsedLimit <= 0) {
-      return
+    const formData = new FormData()
+    formData.set('nombre', editNombre)
+    formData.set('monto_limite', editMontoLimite)
+    formData.set('fecha_inicio', editFechaInicio)
+    formData.set('fecha_fin', editFechaFin)
+
+    try {
+      const result = await updatePresupuestoAction(editingPresupuestoId, formData)
+      if (result.ok) {
+        setSuccessMessage(result.message || 'Presupuesto actualizado exitosamente.')
+        closeEditModal()
+        await loadPresupuestos()
+      } else {
+        setErrorMessage(result.message || 'No se pudo actualizar el presupuesto.')
+      }
+    } catch (err) {
+      setErrorMessage('Error inesperado al actualizar el presupuesto.')
     }
-
-    updateBudget({ id: editingBudgetId, name: trimmedName, limit: parsedLimit })
-    closeEditModal()
   }
 
-  const closeExpenseModal = (): void => {
-    setIsExpenseModalOpen(false)
-    setSelectedBudget(null)
-    setExpenseAmount('')
-    setExpenseAccountId('')
-  }
-
-  const handleAddExpense = (event: FormEvent<HTMLFormElement>): void => {
-    event.preventDefault()
-
-    if (!selectedBudget) {
-      return
-    }
-
-    const parsedAmount = Number.parseFloat(expenseAmount || '0')
-
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0 || !expenseAccountId) {
-      return
-    }
-
-    addBudgetExpense({ id: selectedBudget.id, amount: parsedAmount, accountId: expenseAccountId })
-    closeExpenseModal()
-  }
-
-  const openDeleteBudgetModal = (budget: BudgetWithVisuals): void => {
-    setSelectedBudget(budget)
+  const openDeletePresupuestoModal = (presupuesto: PresupuestoRecord): void => {
+    setSelectedPresupuesto(presupuesto)
     setIsDeleteModalOpen(true)
     setOpenMenuId(null)
   }
 
-  const closeDeleteBudgetModal = (): void => {
-    setSelectedBudget(null)
+  const closeDeletePresupuestoModal = (): void => {
+    setSelectedPresupuesto(null)
     setIsDeleteModalOpen(false)
   }
 
-  const confirmDeleteBudget = (): void => {
-    if (!selectedBudget) {
-      return
-    }
+  const confirmDeletePresupuesto = async (): Promise<void> => {
+    if (!selectedPresupuesto) return
 
-    deleteBudget(selectedBudget.id)
-    closeDeleteBudgetModal()
+    setErrorMessage(null)
+
+    try {
+      const result = await deletePresupuestoAction(selectedPresupuesto.id)
+      if (result.ok) {
+        setSuccessMessage(result.message || 'Presupuesto eliminado exitosamente.')
+        closeDeletePresupuestoModal()
+        await loadPresupuestos()
+      } else {
+        setErrorMessage(result.message || 'No se pudo eliminar el presupuesto.')
+      }
+    } catch (err) {
+      setErrorMessage('Error inesperado al eliminar el presupuesto.')
+    }
   }
 
-  const toggleBudgetMenu = (budgetId: string): void => {
-    setOpenMenuId((current) => (current === budgetId ? null : budgetId))
+  const togglePresupuestoMenu = (presupuestoId: string): void => {
+    setOpenMenuId((current) => (current === presupuestoId ? null : presupuestoId))
+  }
+
+  const formatDate = (dateStr: string): string => {
+    try {
+      const date = new Date(`${dateStr}T00:00:00`)
+      return date.toLocaleDateString('es-SV', { day: '2-digit', month: 'short', year: 'numeric' })
+    } catch {
+      return dateStr
+    }
   }
 
   return (
     <AppLayout title="Presupuestos - Mi Finanzas">
       <div className="container-xl py-4 py-lg-5">
+        {errorMessage && (
+          <div className="alert alert-danger alert-dismissible fade show mb-4">
+            {errorMessage}
+            <button
+              type="button"
+              className="btn-close"
+              onClick={() => setErrorMessage(null)}
+            />
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="alert alert-success alert-dismissible fade show mb-4">
+            {successMessage}
+            <button
+              type="button"
+              className="btn-close"
+              onClick={() => setSuccessMessage(null)}
+            />
+          </div>
+        )}
+
         <header className="page-header-panel">
           <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div>
-              <h2 className="h2 fw-bold mb-1">Mis Presupuestos ({budgets.length})</h2>
-              <p className="text-secondary mb-0">Gestiona tus límites de gasto mensuales y ahorra más.</p>
+              <h2 className="h2 fw-bold mb-1">Mis Presupuestos ({presupuestos.length})</h2>
+              <p className="text-secondary mb-0">Gestiona tus límites de gasto por período y planifica mejor.</p>
             </div>
             <button className="btn btn-primary" type="button" onClick={openCreatePanel}>
               + Nuevo Presupuesto
@@ -169,20 +251,8 @@ function Presupuestos() {
               <div className="card-body">
                 <p className="small text-secondary mb-1">Total Presupuestado</p>
                 <div className="d-flex align-items-center gap-2">
-                  <span className="h4 fw-bold mb-0">${totalBudgeted.toLocaleString()}.00</span>
-                  <span className="badge text-bg-success">100%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-12 col-md-4">
-            <div className="card h-100 border-0 shadow-sm">
-              <div className="card-body">
-                <p className="small text-secondary mb-1">Total Gastado</p>
-                <div className="d-flex align-items-center gap-2">
-                  <span className="h4 fw-bold mb-0">${totalSpent.toLocaleString()}.00</span>
-                  <span className={`badge ${spendingPercent > 100 ? 'text-bg-danger' : 'text-bg-warning text-dark'}`}>
-                    {spendingPercent}%
+                  <span className="h4 fw-bold mb-0">
+                    ${presupuestos.reduce((sum, p) => sum + p.monto_limite, 0).toLocaleString('es-SV', { maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
@@ -191,86 +261,103 @@ function Presupuestos() {
           <div className="col-12 col-md-4">
             <div className="card h-100 border-0 shadow-sm">
               <div className="card-body">
-                <p className="small text-secondary mb-1">Ahorro Potencial</p>
+                <p className="small text-secondary mb-1">Presupuestos Activos</p>
                 <div className="d-flex align-items-center gap-2">
-                  <span className="h4 fw-bold mb-0">${potentialSavings.toLocaleString()}.00</span>
-                  <span className={`badge ${potentialSavings >= 0 ? 'text-bg-primary' : 'text-bg-danger'}`}>
-                    {potentialSavings >= 0 ? 'Disponible' : 'Sobrepasado'}
-                  </span>
+                  <span className="h4 fw-bold mb-0">{presupuestos.length}</span>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-12 col-md-4">
+            <div className="card h-100 border-0 shadow-sm">
+              <div className="card-body">
+                <p className="small text-secondary mb-1">Próximo Vencimiento</p>
+                <p className="h6 fw-semibold mb-0">
+                  {presupuestos.length > 0
+                    ? presupuestos
+                      .filter((p) => p.fecha_fin)
+                      .sort((a, b) => (a.fecha_fin || '').localeCompare(b.fecha_fin || ''))[0]
+                      ?.fecha_fin
+                      ? formatDate(
+                        presupuestos
+                          .filter((p) => p.fecha_fin)
+                          .sort((a, b) => (a.fecha_fin || '').localeCompare(b.fecha_fin || ''))[0]?.fecha_fin || ''
+                      )
+                      : 'Sin vencimiento'
+                    : 'N/A'}
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="d-flex align-items-center gap-2 mb-3">
-          <span className="material-symbols-outlined text-primary">analytics</span>
-          <h3 className="h5 fw-bold mb-0">Detalle por categoría</h3>
-        </div>
-
-        {budgetsWithVisuals.length > 0 ? (
-          <div className="list-group shadow-sm budgets-list">
-            {budgetsWithVisuals.map((budget) => {
-              const percentRaw = budget.limit > 0 ? Math.round((budget.spent / budget.limit) * 100) : 0
-              const percent = Math.min(100, Math.max(0, percentRaw))
-              const percentClass = percentRaw >= 100 ? 'text-danger fw-bold' : percentRaw >= 80 ? 'text-warning fw-semibold' : 'text-secondary'
-              const metadata: string[] = [budget.category || 'General', `Prioridad ${budget.priority || 'Media'}`]
-
-              if (budget.dueDate) {
-                metadata.push(`Vence ${formatBudgetDueDate(budget.dueDate)}`)
-              }
-
-              return (
-                <div key={budget.id} className="list-group-item py-3">
-                  <div className="d-flex flex-column flex-lg-row align-items-lg-center gap-3">
-                    <div className="d-flex align-items-center gap-3 flex-grow-1">
-                      <div className={`rounded p-2 d-inline-flex align-items-center justify-content-center ${budget.iconBg}`}>
-                        <span className="material-symbols-outlined">{budget.icon}</span>
-                      </div>
-                      <div>
-                        <h4 className="h6 fw-bold mb-1">{budget.name}</h4>
-                        <p className="mb-0 text-secondary small">{metadata.join(' • ')}</p>
-                      </div>
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" />
+            <p className="text-secondary mt-3">Cargando presupuestos...</p>
+          </div>
+        ) : presupuestos.length > 0 ? (
+          <div className="list-group shadow-sm">
+            {presupuestos.map((presupuesto) => (
+              <div key={presupuesto.id} className="list-group-item py-3">
+                <div className="d-flex flex-column flex-lg-row align-items-lg-center gap-3">
+                  <div className="d-flex align-items-center gap-3 flex-grow-1">
+                    <div className="rounded p-2 d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary">
+                      <span className="material-symbols-outlined">calendar_month</span>
                     </div>
-
-                    <div className="w-100 w-lg-50">
-                      <div className="d-flex justify-content-between small mb-2">
-                        <span className="text-secondary">${(budget.spent || 0).toFixed(2)} de ${(budget.limit || 0).toFixed(2)}</span>
-                        <span className={percentClass}>{percentRaw}%</span>
-                      </div>
-                      <div className="progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
-                        <div className={`progress-bar ${budget.barClass}`} style={{ width: `${percent}%` }} />
-                      </div>
+                    <div>
+                      <h4 className="h6 fw-bold mb-1">{presupuesto.nombre}</h4>
+                      <p className="mb-0 text-secondary small">
+                        {formatDate(presupuesto.fecha_inicio)} {presupuesto.fecha_fin ? `a ${formatDate(presupuesto.fecha_fin)}` : '(sin vencimiento)'}
+                      </p>
                     </div>
+                  </div>
 
-                    <div className="d-flex align-items-center gap-2 ms-lg-auto">
-                      <div className="position-relative">
+                  <div className="text-lg-end">
+                    <p className="small text-secondary mb-1">Límite</p>
+                    <p className="h5 fw-bold mb-0">
+                      ${presupuesto.monto_limite.toLocaleString('es-SV', { maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+
+                  <div className="d-flex align-items-center gap-2">
+                    <div className="position-relative">
+                      <button
+                        className="btn btn-link text-secondary p-0"
+                        type="button"
+                        onClick={() => togglePresupuestoMenu(presupuesto.id)}
+                        aria-expanded={openMenuId === presupuesto.id}
+                      >
+                        <span className="material-symbols-outlined">more_vert</span>
+                      </button>
+                      <div
+                        className={`dropdown-menu dropdown-menu-end ${openMenuId === presupuesto.id ? 'show' : ''}`}
+                      >
                         <button
-                          className="btn btn-link text-secondary p-0"
+                          className="dropdown-item"
                           type="button"
-                          onClick={() => toggleBudgetMenu(budget.id)}
-                          aria-expanded={openMenuId === budget.id}
+                          onClick={() => openEditPresupuestoModal(presupuesto)}
                         >
-                          <span className="material-symbols-outlined">more_vert</span>
+                          Editar
                         </button>
-                        <div className={`dropdown-menu dropdown-menu-end budget-actions-menu ${openMenuId === budget.id ? 'show' : ''}`}>
-                          <button className="dropdown-item" type="button" onClick={() => openEditBudgetModal(budget)}>
-                            Editar
-                          </button>
-                          <button className="dropdown-item text-danger" type="button" onClick={() => openDeleteBudgetModal(budget)}>
-                            Eliminar
-                          </button>
-                        </div>
+                        <button
+                          className="dropdown-item text-danger"
+                          type="button"
+                          onClick={() => openDeletePresupuestoModal(presupuesto)}
+                        >
+                          Eliminar
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
-              )
-            })}
+              </div>
+            ))}
           </div>
         ) : (
           <div className="alert alert-secondary mb-0">
-            No hay presupuestos creados.
+            <p className="mb-2">No hay presupuestos creados.</p>
+            <p className="mb-0 small">Crea tu primer presupuesto para comenzar a gestionar tus límites de gasto.</p>
           </div>
         )}
       </div>
@@ -294,16 +381,16 @@ function Presupuestos() {
                   <h5 className="modal-title">Nuevo presupuesto</h5>
                   <button type="button" className="btn-close" aria-label="Cerrar" onClick={closeCreatePanel} />
                 </div>
-                <form onSubmit={handleCreateBudget}>
+                <form onSubmit={handleCreatePresupuesto}>
                   <div className="modal-body d-grid gap-3">
                     <div>
-                      <label className="form-label fw-semibold">Título *</label>
+                      <label className="form-label fw-semibold">Nombre del presupuesto *</label>
                       <input
                         className="form-control"
-                        placeholder="Ej: Presupuesto mensual del hogar"
+                        placeholder="Ej: Presupuesto del mes"
                         type="text"
-                        value={createTitle}
-                        onChange={(event) => setCreateTitle(event.target.value)}
+                        value={createNombre}
+                        onChange={(event) => setCreateNombre(event.target.value)}
                         required
                         autoFocus
                       />
@@ -311,13 +398,14 @@ function Presupuestos() {
 
                     <div className="row g-3">
                       <div className="col-12 col-md-6">
-                        <label className="form-label fw-semibold">Fecha de vencimiento</label>
+                        <label className="form-label fw-semibold">Fecha de inicio *</label>
                         <div className="input-group">
                           <input
                             className="form-control"
                             type="date"
-                            value={createDueDate}
-                            onChange={(event) => setCreateDueDate(event.target.value)}
+                            value={createFechaInicio}
+                            onChange={(event) => setCreateFechaInicio(event.target.value)}
+                            required
                           />
                           <span className="input-group-text">
                             <span className="material-symbols-outlined fs-6">calendar_today</span>
@@ -325,20 +413,35 @@ function Presupuestos() {
                         </div>
                       </div>
                       <div className="col-12 col-md-6">
-                        <label className="form-label fw-semibold">Límite mensual ($) *</label>
+                        <label className="form-label fw-semibold">Fecha de fin (opcional)</label>
                         <div className="input-group">
-                          <span className="input-group-text">$</span>
                           <input
                             className="form-control"
-                            type="number"
-                            min="1"
-                            step="0.01"
-                            placeholder="Ej. 500"
-                            value={createLimit}
-                            onChange={(event) => setCreateLimit(event.target.value)}
-                            required
+                            type="date"
+                            value={createFechaFin}
+                            onChange={(event) => setCreateFechaFin(event.target.value)}
                           />
+                          <span className="input-group-text">
+                            <span className="material-symbols-outlined fs-6">calendar_today</span>
+                          </span>
                         </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="form-label fw-semibold">Monto límite ($) *</label>
+                      <div className="input-group">
+                        <span className="input-group-text">$</span>
+                        <input
+                          className="form-control"
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          placeholder="Ej. 1000"
+                          value={createMontoLimite}
+                          onChange={(event) => setCreateMontoLimite(event.target.value)}
+                          required
+                        />
                       </div>
                     </div>
                   </div>
@@ -371,36 +474,69 @@ function Presupuestos() {
               }
             }}
           >
-            <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-dialog modal-dialog-centered modal-lg">
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title">Editar presupuesto</h5>
                   <button type="button" className="btn-close" aria-label="Cerrar" onClick={closeEditModal} />
                 </div>
-                <form onSubmit={handleSaveBudget}>
+                <form onSubmit={handleSavePresupuesto}>
                   <div className="modal-body d-grid gap-3">
                     <div>
                       <label className="form-label fw-semibold">Nombre del presupuesto</label>
                       <input
                         className="form-control"
-                        placeholder="Ej. Alimentación"
+                        placeholder="Ej: Presupuesto del mes"
                         type="text"
-                        value={budgetName}
-                        onChange={(event) => setBudgetName(event.target.value)}
+                        value={editNombre}
+                        onChange={(event) => setEditNombre(event.target.value)}
                         autoFocus
                       />
                     </div>
+
+                    <div className="row g-3">
+                      <div className="col-12 col-md-6">
+                        <label className="form-label fw-semibold">Fecha de inicio</label>
+                        <div className="input-group">
+                          <input
+                            className="form-control"
+                            type="date"
+                            value={editFechaInicio}
+                            onChange={(event) => setEditFechaInicio(event.target.value)}
+                          />
+                          <span className="input-group-text">
+                            <span className="material-symbols-outlined fs-6">calendar_today</span>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="col-12 col-md-6">
+                        <label className="form-label fw-semibold">Fecha de fin</label>
+                        <div className="input-group">
+                          <input
+                            className="form-control"
+                            type="date"
+                            value={editFechaFin}
+                            onChange={(event) => setEditFechaFin(event.target.value)}
+                          />
+                          <span className="input-group-text">
+                            <span className="material-symbols-outlined fs-6">calendar_today</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
                     <div>
-                      <label className="form-label fw-semibold">Límite mensual en dolares</label>
+                      <label className="form-label fw-semibold">Monto límite ($)</label>
                       <div className="input-group">
                         <span className="input-group-text">$</span>
                         <input
                           className="form-control"
-                          placeholder="Ej. 500"
                           type="number"
-                          min="1"
-                          value={budgetLimit}
-                          onChange={(event) => setBudgetLimit(event.target.value)}
+                          min="0.01"
+                          step="0.01"
+                          placeholder="Ej. 1000"
+                          value={editMontoLimite}
+                          onChange={(event) => setEditMontoLimite(event.target.value)}
                         />
                       </div>
                     </div>
@@ -421,84 +557,6 @@ function Presupuestos() {
         </>
       )}
 
-      {isExpenseModalOpen && (
-        <>
-          <div
-            className="modal d-block wallet-modal"
-            tabIndex={-1}
-            role="dialog"
-            style={{ zIndex: 1095 }}
-            onClick={(event: MouseEvent<HTMLDivElement>) => {
-              if (event.target === event.currentTarget) {
-                closeExpenseModal()
-              }
-            }}
-          >
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Registrar gasto</h5>
-                  <button type="button" className="btn-close" aria-label="Cerrar" onClick={closeExpenseModal} />
-                </div>
-                <form onSubmit={handleAddExpense}>
-                  <div className="modal-body d-grid gap-3">
-                    <p className="mb-1 text-secondary small">
-                      Presupuesto: <span className="fw-semibold text-dark">{selectedBudget?.name}</span>
-                    </p>
-                    {accounts.length > 0 ? (
-                      <div>
-                        <label className="form-label fw-semibold">Cartera origen del gasto</label>
-                        <select
-                          className="form-select"
-                          value={expenseAccountId}
-                          onChange={(event) => setExpenseAccountId(event.target.value)}
-                          required
-                        >
-                          {accounts.map((account) => (
-                            <option key={account.id} value={account.id}>
-                              {account.name} (Saldo: ${account.balance.toFixed(2)})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    ) : (
-                      <div className="alert alert-warning py-2 mb-0">
-                        No tienes carteras disponibles para descontar este gasto.
-                      </div>
-                    )}
-                    <div>
-                      <label className="form-label fw-semibold">Monto del gasto</label>
-                      <div className="input-group">
-                        <span className="input-group-text">$</span>
-                        <input
-                          className="form-control"
-                          placeholder="Ej. 25.50"
-                          type="number"
-                          min="0.01"
-                          step="0.01"
-                          value={expenseAmount}
-                          onChange={(event) => setExpenseAmount(event.target.value)}
-                          autoFocus
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-outline-secondary" onClick={closeExpenseModal}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="btn btn-primary" disabled={accounts.length === 0}>
-                      Guardar gasto
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-          <div className="modal-backdrop fade show" style={{ zIndex: 1090 }} />
-        </>
-      )}
-
       {isDeleteModalOpen && (
         <>
           <div
@@ -508,27 +566,27 @@ function Presupuestos() {
             style={{ zIndex: 1105 }}
             onClick={(event: MouseEvent<HTMLDivElement>) => {
               if (event.target === event.currentTarget) {
-                closeDeleteBudgetModal()
+                closeDeletePresupuestoModal()
               }
             }}
           >
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h5 className="modal-title">Confirmar eliminacion</h5>
-                  <button type="button" className="btn-close" aria-label="Cerrar" onClick={closeDeleteBudgetModal} />
+                  <h5 className="modal-title">Confirmar eliminación</h5>
+                  <button type="button" className="btn-close" aria-label="Cerrar" onClick={closeDeletePresupuestoModal} />
                 </div>
                 <div className="modal-body">
                   <p className="mb-0">
                     ¿Seguro que deseas eliminar el presupuesto{' '}
-                    <span className="fw-semibold">{selectedBudget?.name}</span>?
+                    <span className="fw-semibold">{selectedPresupuesto?.nombre}</span>?
                   </p>
                 </div>
                 <div className="modal-footer">
-                  <button type="button" className="btn btn-outline-secondary" onClick={closeDeleteBudgetModal}>
+                  <button type="button" className="btn btn-outline-secondary" onClick={closeDeletePresupuestoModal}>
                     Cancelar
                   </button>
-                  <button type="button" className="btn btn-danger" onClick={confirmDeleteBudget}>
+                  <button type="button" className="btn btn-danger" onClick={confirmDeletePresupuesto}>
                     Eliminar presupuesto
                   </button>
                 </div>
@@ -543,4 +601,3 @@ function Presupuestos() {
 }
 
 export default withAuth(Presupuestos)
-

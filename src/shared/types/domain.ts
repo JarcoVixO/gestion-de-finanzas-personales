@@ -79,3 +79,27 @@ export interface UpdateBudgetPayload {
   priority?: string
   dueDate?: string
 }
+
+export interface PresupuestoRecord {
+  id: string
+  user_id: string
+  nombre: string
+  monto_limite: number
+  fecha_inicio: string
+  fecha_fin: string | null
+  created_at: string
+}
+
+export interface CreatePresupuestoPayload {
+  nombre: string
+  monto_limite: number
+  fecha_inicio: string
+  fecha_fin?: string | null
+}
+
+export interface UpdatePresupuestoPayload {
+  nombre?: string
+  monto_limite?: number
+  fecha_inicio?: string
+  fecha_fin?: string | null
+}
