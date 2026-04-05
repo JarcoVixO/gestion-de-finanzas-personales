@@ -55,9 +55,9 @@ export default function CarterasPage() {
         <header className="page-header-panel">
           <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div>
-              <h2 className="h2 fw-bold mb-1">Mis Carteras ({carteras.length})</h2>
+              <h2 className="h2 fw-bold mb-1">Carteras ({carteras.length})</h2>
               <p className="text-secondary mb-0">
-                Gestiona tus saldos y metas de ahorro en un solo lugar.
+                Gestiona tus saldos y metas de ahorro.
               </p>
             </div>
             <button

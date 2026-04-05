@@ -71,10 +71,10 @@ export default function PresupuestosPage() {
           <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
             <div>
               <h2 className="h2 fw-bold mb-1">
-                Mis Presupuestos ({presupuestos.length})
+                 Presupuestos ({presupuestos.length})
               </h2>
               <p className="text-secondary mb-0">
-                Gestiona tus límites de gasto por período y planifica mejor.
+                Gestiona tus límites de gasto por período.
               </p>
             </div>
             <button
