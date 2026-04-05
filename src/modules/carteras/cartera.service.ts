@@ -23,11 +23,10 @@ export async function crear(
   try {
     const name = input.name.trim()
     if (!name) return { ok: false, message: 'El nombre es obligatorio' }
-
     const goal = calcularGoal(input.balance, input.goal)
     const data = await carteraRepository.insert(userId, { ...input, name, goal })
     return { ok: true, data }
-  } catch {
+  } catch (e) {
     return { ok: false, message: 'No se pudo crear la cartera' }
   }
 }

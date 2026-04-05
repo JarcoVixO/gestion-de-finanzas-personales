@@ -4,7 +4,6 @@ export interface Cartera {
   user_id: string
   name: string
   balance: number
-  type: string
   goal: number
   created_at?: string
 }
@@ -17,7 +16,6 @@ export interface CarteraOption {
 export interface CreateCarteraInput {
   name: string
   balance: number
-  type?: string
   goal?: number | null
 }
 
@@ -42,8 +40,8 @@ export interface CarteraSummary extends CarteraVisuals {
 }
 
 // Mappers visuales
-export function getCarteraVisuals(type: string): CarteraVisuals {
-  const normalized = (type ?? '').toLowerCase()
+export function getCarteraVisuals(name: string): CarteraVisuals {
+  const normalized = (name ?? '').toLowerCase()
   if (normalized.includes('banco'))
     return { icon: 'account_balance', iconBg: 'bg-secondary bg-opacity-10 text-secondary' }
   if (normalized.includes('efectivo'))
@@ -52,7 +50,7 @@ export function getCarteraVisuals(type: string): CarteraVisuals {
 }
 
 export function toCarteraSummary(cartera: Cartera): CarteraSummary {
-  const visuals = getCarteraVisuals(cartera.type)
+  const visuals = getCarteraVisuals(cartera.name)
   return {
     id: cartera.id,
     name: cartera.name,

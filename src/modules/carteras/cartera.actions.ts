@@ -39,7 +39,7 @@ export async function crearCarteraAction(
     const result = await carteraService.crear(userId, input)
     if (result.ok) revalidatePath('/carteras')
     return result
-  } catch {
+  } catch (e) {
     return { ok: false, message: 'Error inesperado' }
   }
 }
