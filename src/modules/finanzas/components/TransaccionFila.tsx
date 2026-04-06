@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { formatTransaccionDate, getTransaccionCategoryMeta } from '../transaccion.schema'
 import type { Transaccion } from '../transaccion.schema'
 
@@ -8,6 +9,7 @@ interface TransaccionFilaProps {
   carteras: { id: string; name: string }[]
   isMenuOpen: boolean
   onToggleMenu: () => void
+  onCloseMenu: () => void
   onEdit: () => void
   onDelete: () => void
 }
@@ -17,14 +19,45 @@ export default function TransaccionFila({
   carteras,
   isMenuOpen,
   onToggleMenu,
+  onCloseMenu,
   onEdit,
   onDelete
 }: TransaccionFilaProps) {
   const meta = getTransaccionCategoryMeta(transaccion)
   const isPositive = transaccion.monto >= 0
+  const actionsRef = useRef<HTMLDivElement>(null)
 
   // Busca el nombre de la cartera
   const carteraNombre = carteras.find(c => c.id === transaccion.cartera_id)?.name ?? 'Sin cartera'
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return
+    }
+
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node | null
+      if (target && !actionsRef.current?.contains(target)) {
+        onCloseMenu()
+      }
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onCloseMenu()
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('touchstart', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('touchstart', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isMenuOpen, onCloseMenu])
 
   return (
     <tr>
@@ -45,7 +78,7 @@ export default function TransaccionFila({
         {isPositive ? '+' : '-'}${Math.abs(transaccion.monto).toFixed(2)}
       </td>
       <td className="tx-actions-col">
-        <div className="transaction-actions-wrapper">
+        <div className="transaction-actions-wrapper" ref={actionsRef}>
           <button
             className="btn btn-link text-secondary p-0 d-inline-flex align-items-center justify-content-center tx-actions-trigger"
             type="button"

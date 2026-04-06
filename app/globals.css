@@ -87,8 +87,8 @@ body {
 .transaction-actions-menu {
   min-width: 9rem;
   top: 50%;
-  left: calc(100% + 0.35rem);
-  right: auto;
+  left: auto;
+  right: 0;
   margin-top: 0;
   transform: translateY(-50%);
   z-index: 1100;
