@@ -30,7 +30,7 @@ export default function CarteraDeleteModal({
             <div className="modal-body">
               <p className="mb-0">
                 ¿Seguro que deseas eliminar la cartera{' '}
-                <span className="fw-semibold">{cartera.name}</span>?
+                <span className="fw-semibold">{cartera.nombre}</span>?
               </p>
             </div>
             <div className="modal-footer">

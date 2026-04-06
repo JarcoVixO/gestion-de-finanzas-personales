@@ -19,7 +19,7 @@ export default function CarteraCard({
 }: CarteraCardProps) {
   const percent = Math.min(
     100,
-    Math.max(0, Math.round((cartera.balance / cartera.goal) * 100))
+    Math.max(0, Math.round((cartera.balance_inicial / cartera.objetivo_cantidad) * 100))
   )
 
   return (
@@ -32,17 +32,17 @@ export default function CarteraCard({
             <span className="material-symbols-outlined">{cartera.icon}</span>
           </div>
           <div>
-            <h4 className="h6 fw-bold mb-1">{cartera.name}</h4>
+            <h4 className="h6 fw-bold mb-1">{cartera.nombre}</h4>
             <p className="mb-0 text-secondary small">Saldo disponible</p>
           </div>
         </div>
 
         {/* Barra de progreso */}
-        {cartera.goal ? (
+        {cartera.objetivo_cantidad ? (
           <div className="w-100 w-lg-50">
             <div className="d-flex justify-content-between small mb-2">
-              <span className="fw-semibold">${cartera.balance.toLocaleString()}.00</span>
-              <span className="text-secondary">Meta: ${cartera.goal.toLocaleString()}.00</span>
+              <span className="fw-semibold">${cartera.balance_inicial.toLocaleString()}.00</span>
+              <span className="text-secondary">Meta: ${cartera.objetivo_cantidad.toLocaleString()}.00</span>
             </div>
             <div
               className="progress"
@@ -56,7 +56,7 @@ export default function CarteraCard({
           </div>
         ) : (
           <div className="w-100 w-lg-50">
-            <span className="fw-semibold">${cartera.balance.toLocaleString()}.00</span>
+            <span className="fw-semibold">${cartera.balance_inicial.toLocaleString()}.00</span>
           </div>
         )}
 

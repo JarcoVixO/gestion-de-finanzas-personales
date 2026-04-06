@@ -6,7 +6,7 @@ import type { Transaccion } from '../transaccion.schema'
 
 interface TransaccionFilaProps {
   transaccion: Transaccion
-  carteras: { id: string; name: string }[]
+  carteras: { id: string; nombre: string }[]
   isMenuOpen: boolean
   onToggleMenu: () => void
   onCloseMenu: () => void
@@ -28,7 +28,7 @@ export default function TransaccionFila({
   const actionsRef = useRef<HTMLDivElement>(null)
 
   // Busca el nombre de la cartera
-  const carteraNombre = carteras.find(c => c.id === transaccion.cartera_id)?.name ?? 'Sin cartera'
+  const carteraNombre = carteras.find(c => c.id === transaccion.cartera_id)?.nombre ?? 'Sin cartera'
 
   useEffect(() => {
     if (!isMenuOpen) {

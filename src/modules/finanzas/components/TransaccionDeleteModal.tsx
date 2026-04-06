@@ -6,7 +6,7 @@ import type { Transaccion } from '../transaccion.schema'
 
 interface TransaccionDeleteModalProps {
   transaccion: Transaccion
-  carteras: { id: string; name: string }[] 
+  carteras: { id: string; nombre: string }[] 
   onConfirm: () => void
   onClose: () => void
 }
@@ -17,7 +17,7 @@ export default function TransaccionDeleteModal({
   onConfirm,
   onClose
 }: TransaccionDeleteModalProps) {
-  const carteraNombre = carteras.find(c => c.id === transaccion.cartera_id)?.name ?? 'Sin cartera'
+  const carteraNombre = carteras.find(c => c.id === transaccion.cartera_id)?.nombre ?? 'Sin cartera'
 
   return (
     <>

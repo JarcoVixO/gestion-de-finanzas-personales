@@ -37,9 +37,9 @@ export async function crear(
       const cartera = await carteraRepository.findById(input.cartera_id)
       if (cartera) {
         const nuevoBalance = input.tipo === 'ingreso'
-          ? cartera.balance + Math.abs(input.monto)
-          : cartera.balance - Math.abs(input.monto)
-        await carteraRepository.update(input.cartera_id, { balance: nuevoBalance })
+          ? cartera.balance_inicial + Math.abs(input.monto)
+          : cartera.balance_inicial - Math.abs(input.monto)
+        await carteraRepository.update(input.cartera_id, { balance_inicial: nuevoBalance })
       }
     }
 
@@ -120,9 +120,9 @@ export async function actualizar(
 
       if (cartera) {
         const balanceRevertido = txAnterior.tipo === 'ingreso'
-          ? cartera.balance - Math.abs(txAnterior.monto)
-          : cartera.balance + Math.abs(txAnterior.monto)
-        await carteraRepository.update(txAnterior.cartera_id, { balance: balanceRevertido })
+          ? cartera.balance_inicial - Math.abs(txAnterior.monto)
+          : cartera.balance_inicial + Math.abs(txAnterior.monto)
+        await carteraRepository.update(txAnterior.cartera_id, { balance_inicial: balanceRevertido })
       }
     }
 
@@ -137,9 +137,9 @@ export async function actualizar(
 
       if (cartera) {
         const nuevoBalance = tipoFinal === 'ingreso'
-          ? cartera.balance + Math.abs(montoFinal)
-          : cartera.balance - Math.abs(montoFinal)
-        await carteraRepository.update(cartera_id, { balance: nuevoBalance })
+          ? cartera.balance_inicial + Math.abs(montoFinal)
+          : cartera.balance_inicial - Math.abs(montoFinal)
+        await carteraRepository.update(cartera_id, { balance_inicial: nuevoBalance })
       }
     }
 
@@ -158,10 +158,10 @@ export async function eliminar(id: string): Promise<ServiceResult<void>> {
 
       if (cartera) {
         const balanceRevertido = tx.tipo === 'ingreso'
-          ? cartera.balance - Math.abs(tx.monto)
-          : cartera.balance + Math.abs(tx.monto)
+          ? cartera.balance_inicial - Math.abs(tx.monto)
+          : cartera.balance_inicial + Math.abs(tx.monto)
 
-        await carteraRepository.update(tx.cartera_id, { balance: balanceRevertido })
+        await carteraRepository.update(tx.cartera_id, { balance_inicial: balanceRevertido })
 
         const carteraActualizada = await carteraRepository.findById(tx.cartera_id)
       }

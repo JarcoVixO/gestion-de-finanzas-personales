@@ -9,14 +9,15 @@ import CarteraDeleteModal from '@/src/modules/carteras/components/CarteraDeleteM
 import type { CarteraSummary, CreateCarteraInput} from '@/src/modules/carteras/cartera.schema'
 
 export default function CarterasPage() {
-  const { carteras, isLoading, crear, actualizar, eliminar } = useCarteras()
+  const { carteras, isLoading, crear, actualizar, eliminar } = useCarteras() //Logica
 
-  const [carteraToEdit, setCarteraToEdit] = useState<CarteraSummary | null>(null)
-  const [carteraToDelete, setCarteraToDelete] = useState<CarteraSummary | null>(null)
-  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [carteraToEdit, setCarteraToEdit] = useState<CarteraSummary | null>(null) //Guarda la cartera que se está editando.
+  const [carteraToDelete, setCarteraToDelete] = useState<CarteraSummary | null>(null) //Guarda la cartera que se quiere eliminar.
+  const [isFormOpen, setIsFormOpen] = useState(false) 
 
-  const totalBalance = carteras.reduce((sum, c) => sum + c.balance, 0)
+  const totalBalance = carteras.reduce((sum, c) => sum + c.balance_inicial, 0)
 
+  //Solo abrir formulario, no se llama a la logica de guardado ni nada
   const openCreateForm = () => {
     setCarteraToEdit(null)
     setIsFormOpen(true)
@@ -32,6 +33,7 @@ export default function CarterasPage() {
     setCarteraToEdit(null)
   }
 
+  //se llama a la logica de guardado
   const handleSave = (input: CreateCarteraInput) => {
     if (carteraToEdit) {
       actualizar(carteraToEdit.id, input)
@@ -75,7 +77,7 @@ export default function CarterasPage() {
         <div className="card text-bg-primary border-0 shadow-sm mb-4">
           <div className="card-body position-relative overflow-hidden p-4 p-lg-5">
             <div className="position-relative z-1">
-              <p className="small fw-medium mb-1">Balance Total Combinado</p>
+              <p className="small fw-medium mb-1">Balance Total</p>
               <h3 className="display-6 fw-bold mb-0">
                 ${totalBalance.toLocaleString()}.00
               </h3>

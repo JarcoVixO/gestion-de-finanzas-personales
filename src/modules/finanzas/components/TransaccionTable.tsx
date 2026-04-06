@@ -9,7 +9,7 @@ interface TransaccionTableProps {
   transacciones: Transaccion[]
   total: number
   isLoading: boolean
-  carteras: { id: string; name: string }[]
+  carteras: { id: string; nombre: string }[]
   onEdit: (transaccion: Transaccion) => void
   onDelete: (transaccion: Transaccion) => void
 }

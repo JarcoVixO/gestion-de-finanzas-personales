@@ -16,12 +16,12 @@ export async function crear(
   input: CreateCarteraInput
 ): Promise<ServiceResult<Cartera>> {
   try {
-    const name = input.name.trim()
-    if (!name) return { ok: false, message: 'El nombre es obligatorio' }
+    const nombre = input.nombre.trim()
+    if (!nombre) return { ok: false, message: 'El nombre es obligatorio' }
     const data = await carteraRepository.insert(userId, {
       ...input,
-      name,
-      goal: input.goal ?? null  
+      nombre,
+      objetivo_cantidad: input.objetivo_cantidad ?? null  
     })
     return { ok: true, data }
   } catch (e) {

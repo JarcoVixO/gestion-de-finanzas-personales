@@ -23,7 +23,7 @@ export default function FinanzasPage() {
   useEffect(() => {
     listarCarterasAction().then((result) => {
       if (result.ok) {
-        setCarteras(result.data.map((c) => ({ id: c.id, name: c.name })))
+        setCarteras(result.data.map((c) => ({ id: c.id, nombre: c.nombre })))
       }
     })
   }, [])

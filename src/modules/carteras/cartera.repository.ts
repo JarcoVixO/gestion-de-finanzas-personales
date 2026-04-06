@@ -29,9 +29,9 @@ export async function insert(userId: string, input: CreateCarteraInput): Promise
     .from('carteras')
     .insert({
       user_id: userId,
-      nombre: input.name,
-      balance_inicial: input.balance,
-      objetivo_cantidad: input.goal ?? null
+      nombre: input.nombre,
+      balance_inicial: input.balance_inicial,
+      objetivo_cantidad: input.objetivo_cantidad ?? null
     })
     .select()
     .single()
@@ -44,9 +44,9 @@ export async function update(id: string, input: Partial<UpdateCarteraInput>): Pr
   const { data, error } = await supabase
     .from('carteras')
     .update({
-      ...(input.name !== undefined && { nombre: input.name }),
-      ...(input.balance !== undefined && { balance_inicial: input.balance }),
-      ...(input.goal !== undefined && { objetivo_cantidad: input.goal })
+      ...(input.nombre !== undefined && { nombre: input.nombre }),
+      ...(input.balance_inicial !== undefined && { balance_inicial: input.balance_inicial }),
+      ...(input.objetivo_cantidad !== undefined && { objetivo_cantidad: input.objetivo_cantidad })
     })
     .eq('id', id)
     .select()
@@ -66,9 +66,9 @@ function toCartera(row: any): Cartera {
   return {
     id: row.id,
     user_id: row.user_id,
-    name: row.nombre,
-    balance: row.balance_inicial,
-    goal: row.objetivo_cantidad ?? 0,
+    nombre: row.nombre,
+    balance_inicial: row.balance_inicial,
+    objetivo_cantidad: row.objetivo_cantidad ?? 0,
     created_at: row.created_at
   }
 }

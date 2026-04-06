@@ -136,7 +136,7 @@ export default function TransaccionFormModal({
                   >
                     <option value="">Sin cartera</option>
                     {carteras.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                      <option key={c.id} value={c.id}>{c.nombre}</option>
                     ))}
                   </select>
                 </div>

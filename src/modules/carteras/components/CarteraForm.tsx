@@ -19,9 +19,9 @@ export default function CarteraForm({ carteraToEdit, onSave, onClose }: CarteraF
 
   useEffect(() => {
     if (carteraToEdit) {
-      setName(carteraToEdit.name)
-      setAmount(String(carteraToEdit.balance))
-      setGoal(String(carteraToEdit.goal))
+      setName(carteraToEdit.nombre)
+      setAmount(String(carteraToEdit.balance_inicial))
+      setGoal(String(carteraToEdit.objetivo_cantidad))
     } else {
       setName('')
       setAmount('')
@@ -35,12 +35,12 @@ export default function CarteraForm({ carteraToEdit, onSave, onClose }: CarteraF
     if (!trimmedName) return
 
     const parsedAmount = Number.parseFloat(amount || '0')
-    const parsedGoal = Number.parseFloat(goal || '0')
+    const parsedGoal = goal.trim() === '' ? null : Number.parseFloat(goal)
 
     onSave({
-      name: trimmedName,
-      balance: Number.isFinite(parsedAmount) ? parsedAmount : 0,
-      goal: parsedGoal > 0 ? parsedGoal : undefined
+      nombre: trimmedName,
+      balance_inicial: Number.isFinite(parsedAmount) ? parsedAmount : 0,
+      objetivo_cantidad: parsedGoal // puede ser numero o null
     })
   }
 
@@ -97,7 +97,6 @@ export default function CarteraForm({ carteraToEdit, onSave, onClose }: CarteraF
                     <input
                       className="form-control"
                       type="number"
-                      min="1"
                       placeholder="Ej. 5000"
                       value={goal}
                       onChange={(e) => setGoal(e.target.value)}

@@ -2,28 +2,28 @@
 export interface Cartera {
   id: string
   user_id: string
-  name: string
-  balance: number
-  goal: number
+  nombre: string
+  balance_inicial: number
+  objetivo_cantidad: number
   created_at?: string
 }
 
 export interface CarteraOption {
   id: string
-  name: string
+  nombre: string
 }
 
 export interface CreateCarteraInput {
-  name: string
-  balance: number
-  goal?: number | null
+  nombre: string
+  balance_inicial: number
+  objetivo_cantidad?: number | null
 }
 
 export interface UpdateCarteraInput {
   id: string
-  name?: string
-  balance?: number
-  goal?: number | null
+  nombre?: string
+  balance_inicial?: number
+  objetivo_cantidad?: number | null
 }
 
 // Tipos visuales
@@ -34,9 +34,9 @@ export interface CarteraVisuals {
 
 export interface CarteraSummary extends CarteraVisuals {
   id: string
-  name: string
-  balance: number
-  goal: number
+  nombre: string
+  balance_inicial: number
+  objetivo_cantidad: number
 }
 
 // Mappers visuales
@@ -50,12 +50,12 @@ export function getCarteraVisuals(name: string): CarteraVisuals {
 }
 
 export function toCarteraSummary(cartera: Cartera): CarteraSummary {
-  const visuals = getCarteraVisuals(cartera.name)
+  const visuals = getCarteraVisuals(cartera.nombre)
   return {
     id: cartera.id,
-    name: cartera.name,
-    balance: cartera.balance,
-    goal: cartera.goal,
+    nombre: cartera.nombre,
+    balance_inicial: cartera.balance_inicial,
+    objetivo_cantidad: cartera.objetivo_cantidad,
     ...visuals
   }
 }
