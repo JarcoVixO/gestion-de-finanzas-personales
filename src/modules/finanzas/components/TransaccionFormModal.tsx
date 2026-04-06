@@ -7,6 +7,7 @@ import type { TransaccionFormState } from '../transaccion.schema'
 interface TransaccionFormModalProps {
   form: TransaccionFormState
   carteras: CarteraOption[]
+  categorias: { id: string; nombre: string }[]
   mode?: 'create' | 'edit'
   onFieldChange: <K extends keyof TransaccionFormState>(field: K, value: TransaccionFormState[K]) => void
   onSubmit: (e: FormEvent<HTMLFormElement>) => void
@@ -16,6 +17,7 @@ interface TransaccionFormModalProps {
 export default function TransaccionFormModal({
   form,
   carteras,
+  categorias,
   mode = 'create',
   onFieldChange,
   onSubmit,
@@ -56,8 +58,8 @@ export default function TransaccionFormModal({
                       name={`${mode}-type`}
                       type="radio"
                       value="expense"
-                      checked={form.type === 'expense'}
-                      onChange={() => onFieldChange('type', 'expense')}
+                      checked={form.tipo === 'gasto'}
+                      onChange={() => onFieldChange('tipo', 'gasto')}
                     />
                     <label className="btn btn-outline-danger" htmlFor={`${mode}-type-expense`}>
                       Gasto
@@ -68,8 +70,8 @@ export default function TransaccionFormModal({
                       name={`${mode}-type`}
                       type="radio"
                       value="income"
-                      checked={form.type === 'income'}
-                      onChange={() => onFieldChange('type', 'income')}
+                      checked={form.tipo === 'ingreso'}
+                      onChange={() => onFieldChange('tipo', 'ingreso')}
                     />
                     <label className="btn btn-outline-success" htmlFor={`${mode}-type-income`}>
                       Ingreso
@@ -84,8 +86,8 @@ export default function TransaccionFormModal({
                     className="form-control"
                     type="text"
                     placeholder="Ej. Compra semanal"
-                    value={form.description}
-                    onChange={updateField('description')}
+                    value={form.descripcion}
+                    onChange={updateField('descripcion')}
                     autoFocus
                   />
                 </div>
@@ -102,8 +104,8 @@ export default function TransaccionFormModal({
                         placeholder="0.00"
                         min="0.01"
                         step="0.01"
-                        value={form.amount}
-                        onChange={updateField('amount')}
+                        value={form.monto}
+                        onChange={updateField('monto')}
                         required
                       />
                     </div>
@@ -113,27 +115,27 @@ export default function TransaccionFormModal({
                     <input
                       className="form-control"
                       type="date"
-                      value={form.date}
-                      onChange={updateField('date')}
+                      value={form.fecha}
+                      onChange={updateField('fecha')}
                     />
                   </div>
                 </div>
 
                 {/* Cuenta */}
                 <div>
-                  <label className="form-label fw-semibold">Cuenta / Cartera</label>
+                  <label className="form-label fw-semibold">Cartera</label>
                   <select
                     className="form-select"
-                    value={form.accountId}
-                    onChange={updateField('accountId')}
+                    value={form.cartera_id}
+                    onChange={(e) => {
+                      onFieldChange('cartera_id', e.target.value)
+                    }}
                     required
                   >
-                    {carteras.length === 0 && (
-                      <option value="">No hay carteras disponibles</option>
-                    )}
-                    {carteras.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
+                    <option value="">Sin cartera</option>
+                      {carteras.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
                   </select>
                 </div>
 
@@ -142,15 +144,13 @@ export default function TransaccionFormModal({
                   <label className="form-label fw-semibold">Categoría</label>
                   <select
                     className="form-select"
-                    value={form.category}
-                    onChange={updateField('category')}
+                    value={form.categoria_id}
+                    onChange={updateField('categoria_id')}
                   >
-                    <option value="food">Comida y Restaurantes</option>
-                    <option value="transport">Transporte</option>
-                    <option value="savings">Ahorros</option>
-                    <option value="salary">Salario</option>
-                    <option value="leisure">Ocio</option>
-                    <option value="other">Otros</option>
+                    <option value="">Sin categoría</option>
+                    {categorias.map((c) => (
+                      <option key={c.id} value={c.id}>{c.nombre}</option>
+                    ))}
                   </select>
                 </div>
 

@@ -8,7 +8,6 @@ import {
   actualizarTransaccionAction,
   eliminarTransaccionAction
 } from '../transaccion.actions'
-import { getSignedAmount } from '../transaccion.schema'
 import type { CreateTransaccionInput, UpdateTransaccionInput } from '../transaccion.schema'
 
 export function useTransacciones() {
@@ -30,8 +29,8 @@ export function useTransacciones() {
   }, [])
 
   const filtradas = useMemo(() => {
-    if (activeTab === 'income') return transacciones.filter((tx) => tx.amount >= 0)
-    if (activeTab === 'expense') return transacciones.filter((tx) => tx.amount < 0)
+    if (activeTab === 'ingresos') return transacciones.filter((tx) => tx.tipo === 'ingreso')
+    if (activeTab === 'gastos') return transacciones.filter((tx) => tx.tipo === 'gasto')
     return transacciones
   }, [activeTab, transacciones])
 

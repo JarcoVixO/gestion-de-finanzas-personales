@@ -35,15 +35,29 @@ export async function listarTransaccionesAction(): Promise<ServiceResult<Transac
   }
 }
 
+export async function listarCategoriasAction(): Promise<ServiceResult<{ id: string; nombre: string }[]>> {
+  try {
+    const { findAllCategorias } = await import('./transaccion.repository')
+    const data = await findAllCategorias()
+    return { ok: true, data }
+  } catch {
+    return { ok: false, message: 'No se pudieron cargar las categorías' }
+  }
+}
+
 export async function crearTransaccionAction(
   input: CreateTransaccionInput
 ): Promise<ServiceResult<Transaccion>> {
   try {
     const userId = await getUserId()
     const result = await transaccionService.crear(userId, input)
-    if (result.ok) revalidatePath('/finanzas')
+
+    if (result.ok){
+      revalidatePath('/finanzas')
+      revalidatePath('/carteras') 
+    }
     return result
-  } catch {
+  } catch (e){
     return { ok: false, message: 'Error inesperado' }
   }
 }
@@ -54,7 +68,10 @@ export async function actualizarTransaccionAction(
 ): Promise<ServiceResult<Transaccion>> {
   try {
     const result = await transaccionService.actualizar(id, input)
-    if (result.ok) revalidatePath('/finanzas')
+    if (result.ok){
+      revalidatePath('/finanzas')
+      revalidatePath('/carteras')
+    }
     return result
   } catch {
     return { ok: false, message: 'Error inesperado' }
@@ -66,7 +83,10 @@ export async function eliminarTransaccionAction(
 ): Promise<ServiceResult<void>> {
   try {
     const result = await transaccionService.eliminar(id)
-    if (result.ok) revalidatePath('/finanzas')
+    if (result.ok) {
+      revalidatePath('/finanzas')
+      revalidatePath('/carteras')
+    }
     return result
   } catch {
     return { ok: false, message: 'Error inesperado' }

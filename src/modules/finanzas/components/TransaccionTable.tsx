@@ -9,6 +9,7 @@ interface TransaccionTableProps {
   transacciones: Transaccion[]
   total: number
   isLoading: boolean
+  carteras: { id: string; name: string }[]
   onEdit: (transaccion: Transaccion) => void
   onDelete: (transaccion: Transaccion) => void
 }
@@ -16,6 +17,7 @@ interface TransaccionTableProps {
 export default function TransaccionTable({
   transacciones,
   total,
+  carteras,
   isLoading,
   onEdit,
   onDelete
@@ -45,6 +47,7 @@ export default function TransaccionTable({
               <TransaccionFila
                 key={tx.id}
                 transaccion={tx}
+                carteras={carteras}
                 isMenuOpen={openMenuId === tx.id}
                 onToggleMenu={() => toggleMenu(tx.id)}
                 onEdit={() => { closeMenu(); onEdit(tx) }}

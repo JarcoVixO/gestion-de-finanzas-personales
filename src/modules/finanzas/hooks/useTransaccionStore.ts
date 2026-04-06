@@ -1,5 +1,4 @@
 'use client'
-
 import { create } from 'zustand'
 import type { Transaccion, TransaccionTab } from '../transaccion.schema'
 
@@ -18,7 +17,7 @@ interface TransaccionStoreState {
 export const useTransaccionStore = create<TransaccionStoreState>((set) => ({
   transacciones: [],
   isLoading: false,
-  activeTab: 'all',
+  activeTab: 'todos', 
   openMenuId: null,
   setTransacciones: (transacciones) => set({ transacciones }),
   setLoading: (isLoading) => set({ isLoading }),

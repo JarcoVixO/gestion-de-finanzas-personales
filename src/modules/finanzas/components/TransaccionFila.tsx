@@ -5,6 +5,7 @@ import type { Transaccion } from '../transaccion.schema'
 
 interface TransaccionFilaProps {
   transaccion: Transaccion
+  carteras: { id: string; name: string }[]
   isMenuOpen: boolean
   onToggleMenu: () => void
   onEdit: () => void
@@ -13,31 +14,35 @@ interface TransaccionFilaProps {
 
 export default function TransaccionFila({
   transaccion,
+  carteras,
   isMenuOpen,
   onToggleMenu,
   onEdit,
   onDelete
 }: TransaccionFilaProps) {
   const meta = getTransaccionCategoryMeta(transaccion)
-  const isPositive = transaccion.amount >= 0
+  const isPositive = transaccion.monto >= 0
+
+  // Busca el nombre de la cartera
+  const carteraNombre = carteras.find(c => c.id === transaccion.cartera_id)?.name ?? 'Sin cartera'
 
   return (
     <tr>
-      <td className="small text-secondary">{formatTransaccionDate(transaccion.date)}</td>
+      <td className="small text-secondary">{formatTransaccionDate(transaccion.fecha)}</td>
       <td>
         <div className="d-flex align-items-center gap-2">
           <div className="transaction-icon-box rounded bg-light d-flex align-items-center justify-content-center text-secondary">
             <span className="material-symbols-outlined fs-6">{meta.icon}</span>
           </div>
-          <span className="fw-semibold">{transaccion.description || 'Sin descripción'}</span>
+          <span className="fw-semibold">{transaccion.descripcion || 'Sin descripción'}</span>
         </div>
       </td>
       <td>
         <span className={`badge rounded-pill ${meta.badgeClass}`}>{meta.label}</span>
       </td>
-      <td className="small text-secondary">{transaccion.account_name || 'Sin cuenta'}</td>
+      <td className="small text-secondary">{carteraNombre}</td>
       <td className={`fw-bold text-end ${isPositive ? 'text-success' : 'text-danger'}`}>
-        {isPositive ? '+' : '-'}${Math.abs(transaccion.amount).toFixed(2)}
+        {isPositive ? '+' : '-'}${Math.abs(transaccion.monto).toFixed(2)}
       </td>
       <td className="tx-actions-col">
         <div className="transaction-actions-wrapper">

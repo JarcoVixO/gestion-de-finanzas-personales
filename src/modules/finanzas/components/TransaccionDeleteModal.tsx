@@ -36,12 +36,12 @@ export default function TransaccionDeleteModal({
                 Esta acción eliminará la transacción del historial y no se puede deshacer.
               </p>
               <div className="rounded border bg-light p-3">
-                <p className="mb-1 fw-semibold">{transaccion.description || 'Sin descripción'}</p>
+                <p className="mb-1 fw-semibold">{transaccion.descripcion || 'Sin descripción'}</p>
                 <p className="mb-0 small text-secondary">
-                  {formatTransaccionDate(transaccion.date)} •{' '}
-                  {transaccion.account_name || 'Sin cuenta'} •{' '}
-                  <span className={transaccion.amount >= 0 ? 'text-success' : 'text-danger'}>
-                    {transaccion.amount >= 0 ? '+' : '-'}${Math.abs(transaccion.amount).toFixed(2)}
+                  {formatTransaccionDate(transaccion.fecha)} •{' '}
+                  {transaccion.cartera_id || 'Sin carteras'} •{' '}
+                  <span className={transaccion.monto >= 0 ? 'text-success' : 'text-danger'}>
+                    {transaccion.monto >= 0 ? '+' : '-'}${Math.abs(transaccion.monto).toFixed(2)}
                   </span>
                 </p>
               </div>

@@ -4,9 +4,9 @@ import { useTransaccionStore } from '../hooks/useTransaccionStore'
 import type { TransaccionTab } from '../transaccion.schema'
 
 const TABS: { key: TransaccionTab; label: string }[] = [
-  { key: 'all', label: 'Todos' },
-  { key: 'income', label: 'Ingresos' },
-  { key: 'expense', label: 'Gastos' }
+  { key: 'todos', label: 'Todos' },
+  { key: 'ingresos', label: 'Ingresos' },
+  { key: 'gastos', label: 'Gastos' }
 ]
 
 export default function TransaccionTabs() {

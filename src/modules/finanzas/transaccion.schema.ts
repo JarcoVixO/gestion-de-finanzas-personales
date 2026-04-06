@@ -1,47 +1,54 @@
-import type { ServiceResult } from '@/src/shared/types/common'
-
 // Tipos de dominio
 export interface Transaccion {
   id: string
   user_id: string
-  description: string
-  amount: number
-  date: string
-  account_id?: string | null
-  account_name?: string
-  category?: TransaccionCategory
+  cartera_id: string | null
+  presupuesto_id: string | null
+  categoria_id: string | null
+  tipo: TransaccionType
+  monto: number
+  descripcion: string
+  fecha: string
   created_at?: string
 }
 
-export type TransaccionType = 'income' | 'expense'
-export type TransaccionTab = 'all' | 'income' | 'expense'
-export type TransaccionCategory = 'food' | 'transport' | 'savings' | 'salary' | 'leisure' | 'other'
+export interface Categoria {
+  id: string
+  nombre: string 
+}
+
+export type TransaccionType = 'ingreso' | 'gasto'
+export type TransaccionTab = 'todos' | 'ingresos' | 'gastos'
 
 export interface TransaccionFormState {
-  type: TransaccionType
-  description: string
-  amount: string
-  date: string
-  accountId: string
-  budgetId: string
-  category: TransaccionCategory
+  tipo: TransaccionType
+  descripcion: string
+  monto: string
+  fecha: string
+  cartera_id: string
+  presupuesto_id: string
+  categoria_id: string
 }
 
 export interface CreateTransaccionInput {
-  description: string
-  amount: number
-  date: string
-  accountId: string
-  category?: TransaccionCategory
+  descripcion: string
+  monto: number
+  fecha: string
+  tipo: TransaccionType
+  cartera_id?: string | null
+  presupuesto_id?: string | null
+  categoria_id?: string | null
 }
 
 export interface UpdateTransaccionInput {
   id: string
-  description?: string
-  amount?: number
-  date?: string
-  accountId?: string | null
-  category?: TransaccionCategory
+  descripcion?: string
+  monto?: number
+  fecha?: string
+  tipo?: TransaccionType
+  cartera_id?: string | null
+  presupuesto_id?: string | null
+  categoria_id?: string | null
 }
 
 export interface TransaccionCategoryMeta {
@@ -62,8 +69,10 @@ export function toInputDate(value: string | null | undefined): string {
 
 export function formatTransaccionDate(value: string | null | undefined): string {
   if (!value) return 'Sin fecha'
-  const date = new Date(`${value}T00:00:00`)
-  if (Number.isNaN(date.getTime())) return value
+  const dateOnly = value.slice(0, 10)
+  const date = new Date(`${dateOnly}T00:00:00`)
+  
+  if (Number.isNaN(date.getTime())) return dateOnly
   return date.toLocaleDateString('es-SV', {
     day: '2-digit',
     month: 'short',
@@ -72,29 +81,24 @@ export function formatTransaccionDate(value: string | null | undefined): string 
 }
 
 export function getTransaccionCategoryMeta(tx: Transaccion): TransaccionCategoryMeta {
-  const isIncome = tx.amount >= 0
-  const desc = (tx.description ?? '').toLowerCase()
-
-  if (isIncome && desc.includes('sueldo'))
-    return { label: 'Salario', badgeClass: 'text-bg-success', icon: 'work' }
-  if (isIncome)
+  if (tx.tipo === 'ingreso')
     return { label: 'Ingreso', badgeClass: 'text-bg-success', icon: 'trending_up' }
   return { label: 'Gasto', badgeClass: 'text-bg-warning text-dark', icon: 'receipt_long' }
 }
 
-export function getSignedAmount(amount: number, type: TransaccionType): number {
-  return type === 'expense' ? -Math.abs(amount) : Math.abs(amount)
+export function getSignedAmount(monto: number, tipo: TransaccionType): number {
+  return tipo === 'gasto' ? -Math.abs(monto) : Math.abs(monto)
 }
 
 export function createEmptyForm(): TransaccionFormState {
   return {
-    type: 'expense',
-    description: '',
-    amount: '',
-    date: TODAY(),
-    accountId: '',
-    budgetId: '',
-    category: 'food'
+    tipo: 'gasto',
+    descripcion: '',
+    monto: '',
+    fecha: TODAY(),
+    cartera_id: '',
+    presupuesto_id: '',
+    categoria_id: ''
   }
 }
 
@@ -103,10 +107,12 @@ export function formFromTransaccion(tx: Transaccion | null | undefined): Transac
   if (!tx) return base
   return {
     ...base,
-    description: tx.description ?? '',
-    amount: String(Math.abs(Number(tx.amount) || 0)),
-    date: toInputDate(tx.date),
-    type: (Number(tx.amount) || 0) < 0 ? 'expense' : 'income',
-    accountId: tx.account_id ?? ''
+    descripcion: tx.descripcion ?? '',
+    monto: String(Math.abs(Number(tx.monto) || 0)),
+    fecha: toInputDate(tx.fecha),
+    tipo: tx.tipo,
+    cartera_id: tx.cartera_id ?? '',
+    presupuesto_id: tx.presupuesto_id ?? '',
+    categoria_id: tx.categoria_id ?? ''
   }
 }
