@@ -71,7 +71,7 @@ export function formatTransaccionDate(value: string | null | undefined): string 
   if (!value) return 'Sin fecha'
   const dateOnly = value.slice(0, 10)
   const date = new Date(`${dateOnly}T00:00:00`)
-  
+
   if (Number.isNaN(date.getTime())) return dateOnly
   return date.toLocaleDateString('es-SV', {
     day: '2-digit',
@@ -86,8 +86,18 @@ export function getTransaccionCategoryMeta(tx: Transaccion): TransaccionCategory
   return { label: 'Gasto', badgeClass: 'text-bg-warning text-dark', icon: 'receipt_long' }
 }
 
+
 export function getSignedAmount(monto: number, tipo: TransaccionType): number {
   return tipo === 'gasto' ? -Math.abs(monto) : Math.abs(monto)
+}
+
+export function getPeriodos(transacciones: Transaccion[]): string[] {
+  const periodos = new Set<string>()
+  transacciones.forEach((tx) => {
+    const fecha = tx.fecha?.slice(0, 7)
+    if (fecha) periodos.add(fecha)
+  })
+  return Array.from(periodos).sort((a, b) => b.localeCompare(a))
 }
 
 export function createEmptyForm(): TransaccionFormState {
@@ -115,4 +125,10 @@ export function formFromTransaccion(tx: Transaccion | null | undefined): Transac
     presupuesto_id: tx.presupuesto_id ?? '',
     categoria_id: tx.categoria_id ?? ''
   }
+}
+
+export function formatPeriodo(periodo: string): string {
+  const [year, month] = periodo.split('-')
+  const date = new Date(Number(year), Number(month) - 1)
+  return date.toLocaleDateString('es-SV', { month: 'long', year: 'numeric' })
 }

@@ -6,15 +6,19 @@ import type { Transaccion } from '../transaccion.schema'
 
 interface TransaccionDeleteModalProps {
   transaccion: Transaccion
+  carteras: { id: string; name: string }[] 
   onConfirm: () => void
   onClose: () => void
 }
 
 export default function TransaccionDeleteModal({
   transaccion,
+  carteras,
   onConfirm,
   onClose
 }: TransaccionDeleteModalProps) {
+  const carteraNombre = carteras.find(c => c.id === transaccion.cartera_id)?.name ?? 'Sin cartera'
+
   return (
     <>
       <div
@@ -38,8 +42,8 @@ export default function TransaccionDeleteModal({
               <div className="rounded border bg-light p-3">
                 <p className="mb-1 fw-semibold">{transaccion.descripcion || 'Sin descripción'}</p>
                 <p className="mb-0 small text-secondary">
-                  {formatTransaccionDate(transaccion.fecha)} •{' '}
-                  {transaccion.cartera_id || 'Sin carteras'} •{' '}
+                  {formatTransaccionDate(transaccion.fecha)} |{' '}
+                  {carteraNombre || 'Sin carteras'} |{' '}
                   <span className={transaccion.monto >= 0 ? 'text-success' : 'text-danger'}>
                     {transaccion.monto >= 0 ? '+' : '-'}${Math.abs(transaccion.monto).toFixed(2)}
                   </span>

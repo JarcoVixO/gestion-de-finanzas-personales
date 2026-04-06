@@ -1,5 +1,4 @@
 'use client'
-
 import { useEffect, useMemo, useTransition } from 'react'
 import { useTransaccionStore } from './useTransaccionStore'
 import {
@@ -15,6 +14,7 @@ export function useTransacciones() {
     transacciones,
     isLoading,
     activeTab,
+    activePeriodo,
     setTransacciones,
     setLoading
   } = useTransaccionStore()
@@ -29,10 +29,16 @@ export function useTransacciones() {
   }, [])
 
   const filtradas = useMemo(() => {
-    if (activeTab === 'ingresos') return transacciones.filter((tx) => tx.tipo === 'ingreso')
-    if (activeTab === 'gastos') return transacciones.filter((tx) => tx.tipo === 'gasto')
-    return transacciones
-  }, [activeTab, transacciones])
+    let result = transacciones
+
+    if (activePeriodo) {
+      result = result.filter((tx) => tx.fecha?.slice(0, 7) === activePeriodo)
+    }
+
+    if (activeTab === 'ingresos') return result.filter((tx) => tx.tipo === 'ingreso')
+    if (activeTab === 'gastos') return result.filter((tx) => tx.tipo === 'gasto')
+    return result
+  }, [activeTab, activePeriodo, transacciones])
 
   const crear = (input: CreateTransaccionInput) =>
     startTransition(async () => {

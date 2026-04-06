@@ -151,6 +151,7 @@ export default function FinanzasPage() {
       {transaccionToDelete && (
         <TransaccionDeleteModal
           transaccion={transaccionToDelete}
+          carteras={carteras}
           onConfirm={handleConfirmDelete}
           onClose={() => setTransaccionToDelete(null)}
         />

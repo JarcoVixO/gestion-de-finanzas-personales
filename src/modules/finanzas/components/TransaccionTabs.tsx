@@ -2,6 +2,7 @@
 
 import { useTransaccionStore } from '../hooks/useTransaccionStore'
 import type { TransaccionTab } from '../transaccion.schema'
+import { getPeriodos, formatPeriodo } from '../transaccion.schema'
 
 const TABS: { key: TransaccionTab; label: string }[] = [
   { key: 'todos', label: 'Todos' },
@@ -10,8 +11,9 @@ const TABS: { key: TransaccionTab; label: string }[] = [
 ]
 
 export default function TransaccionTabs() {
-  const { activeTab, setActiveTab } = useTransaccionStore()
-
+  const { activeTab, setActiveTab, transacciones, activePeriodo, setActivePeriodo } = useTransaccionStore()
+  const periodos = getPeriodos(transacciones)
+  
   return (
     <section className="card border-0 shadow-sm mb-4">
       <div className="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
@@ -29,14 +31,18 @@ export default function TransaccionTabs() {
           ))}
         </ul>
         <div>
-          <label className="form-label text-uppercase small text-secondary fw-semibold mb-1">
+        <label className="form-label text-uppercase small text-secondary fw-semibold mb-1">
             Periodo
           </label>
-          <select className="form-select form-select-sm">
-            <option>Octubre 2023</option>
-            <option>Septiembre 2023</option>
-            <option>Agosto 2023</option>
-            <option>Últimos 90 días</option>
+          <select
+            className="form-select form-select-sm"
+            value={activePeriodo}
+            onChange={(e) => setActivePeriodo(e.target.value)}
+          >
+            <option value="">Todos los periodos</option>
+            {periodos.map((p) => (
+              <option key={p} value={p}>{formatPeriodo(p)}</option>
+            ))}
           </select>
         </div>
       </div>
