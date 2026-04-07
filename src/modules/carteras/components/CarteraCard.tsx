@@ -18,7 +18,6 @@ export default function CarteraCard({
   onEdit,
   onDelete
 }: CarteraCardProps) {
-  const actionsRef = useRef<HTMLDivElement>(null)
 
   const percent = Math.min(
     100,
@@ -64,7 +63,7 @@ export default function CarteraCard({
         )}
 
         {/* Menú acciones */}
-        <div className="position-relative ms-lg-auto" ref={actionsRef}>
+        <div className="position-relative ms-lg-auto">
           <button
             className="btn btn-link text-secondary p-0"
             type="button"

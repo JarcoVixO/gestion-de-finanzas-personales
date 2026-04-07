@@ -23,7 +23,6 @@ export default function TransaccionFila({
 }: TransaccionFilaProps) {
   const meta = getTransaccionCategoryMeta(transaccion)
   const isPositive = transaccion.monto >= 0
-  const actionsRef = useRef<HTMLDivElement>(null)
 
   // Busca el nombre de la cartera
   const carteraNombre = carteras.find(c => c.id === transaccion.cartera_id)?.nombre ?? 'Sin cartera'
@@ -47,7 +46,7 @@ export default function TransaccionFila({
         {isPositive ? '+' : '-'}${Math.abs(transaccion.monto).toFixed(2)}
       </td>
       <td className="tx-actions-col">
-        <div className="transaction-actions-wrapper" ref={actionsRef} style={{ position: 'relative' }}>
+        <div className="transaction-actions-wrapper" style={{ position: 'relative' }}>
           <button
             className="btn btn-link text-secondary p-0 d-inline-flex align-items-center justify-content-center tx-actions-trigger"
             type="button"
