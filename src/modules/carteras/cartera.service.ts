@@ -18,6 +18,10 @@ export async function crear(
   try {
     const nombre = input.nombre.trim()
     if (!nombre) return { ok: false, message: 'El nombre es obligatorio' }
+
+    const existente = await carteraRepository.findByNombre(userId, nombre)
+    if (existente) return { ok: false, message: 'Ya tienes una cartera con ese nombre' }
+    
     const data = await carteraRepository.insert(userId, {
       ...input,
       nombre,

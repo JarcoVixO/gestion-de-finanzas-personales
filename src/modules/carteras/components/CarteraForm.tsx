@@ -8,9 +8,10 @@ interface CarteraFormProps {
   carteraToEdit?: CarteraSummary | null
   onSave: (input: CreateCarteraInput) => void
   onClose: () => void
+  error?: string | null 
 }
 
-export default function CarteraForm({ carteraToEdit, onSave, onClose }: CarteraFormProps) {
+export default function CarteraForm({ carteraToEdit, onSave, onClose, error}: CarteraFormProps) {
   const isEditing = Boolean(carteraToEdit)
 
   const [name, setName] = useState('')
@@ -66,6 +67,9 @@ export default function CarteraForm({ carteraToEdit, onSave, onClose }: CarteraF
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body d-grid gap-3">
+              {error && (
+                <div className="alert alert-danger py-2 mb-0">{error}</div>
+              )}
                 <div>
                   <label className="form-label fw-semibold">Nombre de la cartera</label>
                   <input

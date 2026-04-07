@@ -14,6 +14,7 @@ export default function CarterasPage() {
   const [carteraToEdit, setCarteraToEdit] = useState<CarteraSummary | null>(null) //Guarda la cartera que se está editando.
   const [carteraToDelete, setCarteraToDelete] = useState<CarteraSummary | null>(null) //Guarda la cartera que se quiere eliminar.
   const [isFormOpen, setIsFormOpen] = useState(false) 
+  const [formError, setFormError] = useState<string | null>(null)
 
   const totalBalance = carteras.reduce((sum, c) => sum + c.balance_inicial, 0)
 
@@ -31,16 +32,21 @@ export default function CarterasPage() {
   const closeForm = () => {
     setIsFormOpen(false)
     setCarteraToEdit(null)
+    setFormError(null)
   }
 
   //se llama a la logica de guardado
-  const handleSave = (input: CreateCarteraInput) => {
-    if (carteraToEdit) {
-      actualizar(carteraToEdit.id, input)
+  const handleSave = async (input: CreateCarteraInput) => {
+    setFormError(null)
+    const result = await (carteraToEdit
+      ? actualizar(carteraToEdit.id, input)
+      : crear(input))
+  
+    if (result.ok) {
+      closeForm()
     } else {
-      crear(input)
+      setFormError(result.message ?? 'Error al guardar')
     }
-    closeForm()
   }
 
   const handleConfirmDelete = () => {
@@ -109,6 +115,7 @@ export default function CarterasPage() {
           carteraToEdit={carteraToEdit}
           onSave={handleSave}
           onClose={closeForm}
+          error={formError}
         />
       )}
 

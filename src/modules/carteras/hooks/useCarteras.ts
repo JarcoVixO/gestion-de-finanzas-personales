@@ -1,6 +1,5 @@
 'use client'
-
-import { useEffect, useTransition } from 'react'
+import { useEffect } from 'react'
 import { toCarteraSummary } from '../cartera.schema'
 import { useCarteraStore } from './useCarteraStore'
 import {
@@ -13,7 +12,6 @@ import type { CreateCarteraInput, UpdateCarteraInput } from '../cartera.schema'
 
 export function useCarteras() {
   const { carteras, isLoading, setCarteras, setLoading } = useCarteraStore()
-  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     setLoading(true)
@@ -23,30 +21,36 @@ export function useCarteras() {
     })
   }, [])
 
-  const crear = (input: CreateCarteraInput) =>
-    startTransition(async () => {
-      const result = await crearCarteraAction(input)
-      if (result.ok)
-        setCarteras([toCarteraSummary(result.data), ...carteras])
-    })
+  const crear = async (input: CreateCarteraInput) => {
+    const result = await crearCarteraAction(input)
+    if (result.ok) {
+      const current = useCarteraStore.getState().carteras
+      setCarteras([toCarteraSummary(result.data), ...current])
+    }
+    return result
+  }
 
-  const actualizar = (id: string, input: Partial<UpdateCarteraInput>) =>
-    startTransition(async () => {
-      const result = await actualizarCarteraAction(id, input)
-      if (result.ok)
-        setCarteras(carteras.map((c) => c.id === id ? toCarteraSummary(result.data) : c))
-    })
+  const actualizar = async (id: string, input: Partial<UpdateCarteraInput>) => {
+    const result = await actualizarCarteraAction(id, input)
+    if (result.ok) {
+      const current = useCarteraStore.getState().carteras
+      setCarteras(current.map((c) => c.id === id ? toCarteraSummary(result.data) : c))
+    }
+    return result
+  }
 
-  const eliminar = (id: string) =>
-    startTransition(async () => {
-      const result = await eliminarCarteraAction(id)
-      if (result.ok)
-        setCarteras(carteras.filter((c) => c.id !== id))
-    })
+  const eliminar = async (id: string) => {
+    const result = await eliminarCarteraAction(id)
+    if (result.ok) {
+      const current = useCarteraStore.getState().carteras
+      setCarteras(current.filter((c) => c.id !== id))
+    }
+    return result
+  }
 
   return {
     carteras,
-    isLoading: isLoading || isPending,
+    isLoading,
     crear,
     actualizar,
     eliminar

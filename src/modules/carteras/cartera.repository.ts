@@ -18,6 +18,18 @@ export async function findById(id: string): Promise<Cartera | null> {
     .from('carteras')
     .select('*')
     .eq('id', id)
+    .single() //Espero exactamente un solo resultado, no una lista
+  if (error) return null
+  return toCartera(data)
+}
+
+export async function findByNombre(userId: string, nombre: string): Promise<Cartera | null> {
+  const supabase = createBackendSupabaseClient()
+  const { data, error } = await supabase
+    .from('carteras')
+    .select('*')
+    .eq('user_id', userId)
+    .ilike('nombre', nombre) // case-insensitive
     .single()
   if (error) return null
   return toCartera(data)
@@ -48,7 +60,7 @@ export async function update(id: string, input: Partial<UpdateCarteraInput>): Pr
       ...(input.balance_inicial !== undefined && { balance_inicial: input.balance_inicial }),
       ...(input.objetivo_cantidad !== undefined && { objetivo_cantidad: input.objetivo_cantidad })
     })
-    .eq('id', id)
+    .eq('id', id) //equals
     .select()
     .single()
   if (error) throw new Error(error.message)
