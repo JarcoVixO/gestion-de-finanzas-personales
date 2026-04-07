@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import {useRef } from 'react'
 import { formatTransaccionDate, getTransaccionCategoryMeta } from '../transaccion.schema'
 import type { Transaccion } from '../transaccion.schema'
 
@@ -9,7 +9,6 @@ interface TransaccionFilaProps {
   carteras: { id: string; nombre: string }[]
   isMenuOpen: boolean
   onToggleMenu: () => void
-  onCloseMenu: () => void
   onEdit: () => void
   onDelete: () => void
 }
@@ -19,7 +18,6 @@ export default function TransaccionFila({
   carteras,
   isMenuOpen,
   onToggleMenu,
-  onCloseMenu,
   onEdit,
   onDelete
 }: TransaccionFilaProps) {

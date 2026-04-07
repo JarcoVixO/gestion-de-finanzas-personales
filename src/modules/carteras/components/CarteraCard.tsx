@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import type { CarteraSummary } from '../cartera.schema'
 
 interface CarteraCardProps {
   cartera: CarteraSummary
   isMenuOpen: boolean
   onToggleMenu: () => void
-  onCloseMenu: () => void
   onEdit: () => void
   onDelete: () => void
 }
@@ -16,7 +15,6 @@ export default function CarteraCard({
   cartera,
   isMenuOpen,
   onToggleMenu,
-  onCloseMenu,
   onEdit,
   onDelete
 }: CarteraCardProps) {

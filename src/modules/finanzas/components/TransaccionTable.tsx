@@ -50,7 +50,6 @@ export default function TransaccionTable({
                 carteras={carteras}
                 isMenuOpen={openMenuId === tx.id}
                 onToggleMenu={() => toggleMenu(tx.id)}
-                onCloseMenu={closeMenu}
                 onEdit={() => { closeMenu(); onEdit(tx) }}
                 onDelete={() => { closeMenu(); onDelete(tx) }}
               />
